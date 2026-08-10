@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { SIDEBAR_COOKIE } from './constants';
@@ -19,13 +19,27 @@ export function AppShell({
 }) {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
 
-  function toggle() {
-    const next = !collapsed;
-    setCollapsed(next);
-    // Persist locally rather than via a Server Action — toggling the sidebar
-    // shouldn't cost a server round trip. One year, root path.
-    document.cookie = `${SIDEBAR_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
-  }
+  const toggle = useCallback(() => {
+    setCollapsed((current) => {
+      const next = !current;
+      // Persist locally rather than via a Server Action — toggling the sidebar
+      // shouldn't cost a server round trip. One year, root path.
+      document.cookie = `${SIDEBAR_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') {
+        event.preventDefault();
+        toggle();
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [toggle]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-black">

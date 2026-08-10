@@ -24,3 +24,46 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/*
+ * Overlay-style scrollbar for panels like the sidebar. The OS default renders
+ * as a wide light track that reads as a seam against a dark panel; this keeps
+ * the thumb visible only on hover of the scrolling element.
+ */
+.scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-subtle:hover {
+  scrollbar-color: rgb(212 212 216 / 0.9) transparent; /* zinc-300 */
+}
+
+.scrollbar-subtle::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+
+.scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(212 212 216 / 0.9); /* zinc-300 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .scrollbar-subtle:hover {
+    scrollbar-color: rgb(63 63 70 / 0.9) transparent; /* zinc-700 */
+  }
+
+  .scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+    background-color: rgb(63 63 70 / 0.9); /* zinc-700 */
+  }
+}

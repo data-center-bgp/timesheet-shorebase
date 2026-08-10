@@ -16,7 +16,7 @@ function ItemRow({
   const Icon = item.icon;
 
   const shared = [
-    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+    'flex items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors',
     collapsed ? 'justify-center px-0' : '',
   ].join(' ');
 
@@ -63,15 +63,19 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       aria-label="Main"
       className={`${
         collapsed ? 'w-16' : 'w-60'
-      } shrink-0 overflow-y-auto border-r border-zinc-200 bg-white transition-[width] duration-200 dark:border-zinc-800 dark:bg-zinc-950`}
+      } scrollbar-subtle shrink-0 overflow-y-auto border-r border-zinc-200 bg-white transition-[width] duration-200 dark:border-zinc-800 dark:bg-zinc-950`}
     >
-      <div className={`flex h-14 items-center border-b border-zinc-200 dark:border-zinc-800 ${collapsed ? 'justify-center' : 'px-4'}`}>
+      <div
+        className={`sticky top-0 z-10 flex h-14 items-center border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 ${
+          collapsed ? 'justify-center' : 'px-4'
+        }`}
+      >
         <span className="font-mono text-xs font-medium tracking-[0.2em] text-teal-700 dark:text-teal-400">
           {collapsed ? 'SB' : 'SHOREBASE'}
         </span>
       </div>
 
-      <div className="space-y-6 px-2 py-4">
+      <div className="space-y-5 px-2 py-3">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
             {collapsed ? (

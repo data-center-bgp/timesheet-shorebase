@@ -25,9 +25,11 @@ export function Topbar({
         <button
           type="button"
           onClick={onToggle}
+          title={`${collapsed ? 'Expand' : 'Collapse'} sidebar  (Ctrl+B)`}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!collapsed}
-          className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+          aria-keyshortcuts="Control+B"
+          className="rounded-md border border-zinc-300 p-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
         >
           <ToggleIcon className="size-4" aria-hidden="true" />
         </button>
