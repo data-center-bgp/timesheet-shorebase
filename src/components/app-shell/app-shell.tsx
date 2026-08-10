@@ -4,18 +4,21 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { SIDEBAR_COOKIE } from './constants';
+import type { Theme } from '@/components/theme/constants';
 
 export function AppShell({
   children,
   email,
   initialCollapsed,
   signOut,
+  serverTheme,
 }: {
   children: ReactNode;
   email: string | undefined;
   /** Server-rendered from the cookie, so the first paint is already correct. */
   initialCollapsed: boolean;
   signOut: () => Promise<void>;
+  serverTheme: Theme;
 }) {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
 
@@ -50,6 +53,7 @@ export function AppShell({
           collapsed={collapsed}
           onToggle={toggle}
           signOut={signOut}
+          serverTheme={serverTheme}
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

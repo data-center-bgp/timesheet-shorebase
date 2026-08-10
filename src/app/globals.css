@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Drive dark mode from a `.dark` class on <html> rather than the OS setting,
+ * so the top-bar toggle can control it. The class is set server-side from a
+ * cookie (see src/components/theme/), with an inline script covering the
+ * first visit before any cookie exists.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,11 +20,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
@@ -58,12 +64,10 @@ body {
   background-color: rgb(212 212 216 / 0.9); /* zinc-300 */
 }
 
-@media (prefers-color-scheme: dark) {
-  .scrollbar-subtle:hover {
-    scrollbar-color: rgb(63 63 70 / 0.9) transparent; /* zinc-700 */
-  }
+.dark .scrollbar-subtle:hover {
+  scrollbar-color: rgb(63 63 70 / 0.9) transparent; /* zinc-700 */
+}
 
-  .scrollbar-subtle:hover::-webkit-scrollbar-thumb {
-    background-color: rgb(63 63 70 / 0.9); /* zinc-700 */
-  }
+.dark .scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(63 63 70 / 0.9); /* zinc-700 */
 }
