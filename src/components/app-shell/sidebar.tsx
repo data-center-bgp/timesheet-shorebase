@@ -25,19 +25,6 @@ function ItemRow({
     ? 'before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-full before:bg-teal-600 dark:before:bg-teal-400'
     : '';
 
-  if (!item.href) {
-    return (
-      <span
-        aria-disabled="true"
-        title={collapsed ? `${item.label} (not built yet)` : 'Not built yet'}
-        className={`${shared} cursor-not-allowed text-zinc-400 dark:text-zinc-600`}
-      >
-        <Icon className="size-4 shrink-0" aria-hidden="true" />
-        {!collapsed && <span className="truncate">{item.label}</span>}
-      </span>
-    );
-  }
-
   return (
     <Link
       href={item.href}
@@ -94,7 +81,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                   key={item.label}
                   item={item}
                   collapsed={collapsed}
-                  active={!!item.href && item.href === pathname}
+                  active={item.href === pathname}
                 />
               ))}
             </div>

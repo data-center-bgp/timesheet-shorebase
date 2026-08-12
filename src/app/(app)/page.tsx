@@ -8,8 +8,8 @@ export default function Home() {
         Shorebase Timesheet
       </h2>
       <p className="mt-4 max-w-prose text-zinc-600 dark:text-zinc-400">
-        Navigation is in place. Sections appear in the sidebar as they&apos;re
-        built — greyed-out items aren&apos;t available yet.
+        Navigation is in place. Sections show &quot;Coming soon&quot; until
+        they&apos;re built.
       </p>
     </div>
   );

@@ -22,8 +22,12 @@ import {
 export type NavItem = {
   label: string;
   icon: LucideIcon;
-  /** Omitted until the page exists — renders muted and non-clickable. */
-  href?: string;
+  /**
+   * Every item links somewhere. Pages that don't exist yet resolve to the
+   * `[section]` catch-all, which renders a "Coming soon" placeholder — so
+   * this list never needs to shrink or grow as real pages get built.
+   */
+  href: string;
 };
 
 export type NavGroup = {
@@ -37,43 +41,48 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Operations',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/' },
-      { label: 'Timesheets', icon: ClipboardList },
-      { label: 'Activities', icon: Activity },
-      { label: 'Material Handling', icon: Container },
+      { label: 'Timesheets', icon: ClipboardList, href: '/timesheets' },
+      { label: 'Activities', icon: Activity, href: '/activities' },
+      { label: 'Material Handling', icon: Container, href: '/material-handling' },
     ],
   },
   {
     label: 'Approvals & Billing',
     items: [
-      { label: 'Approvals', icon: Stamp },
-      { label: 'Summary Timesheets', icon: FileStack },
-      { label: 'Invoices', icon: Receipt },
+      { label: 'Approvals', icon: Stamp, href: '/approvals' },
+      { label: 'Summary Timesheets', icon: FileStack, href: '/summary-timesheets' },
+      { label: 'Invoices', icon: Receipt, href: '/invoices' },
     ],
   },
   {
     label: 'Master Data',
     items: [
-      { label: 'Companies', icon: Building2 },
-      { label: 'Contracts', icon: FileSignature },
-      { label: 'Services', icon: Wrench },
-      { label: 'Periods', icon: CalendarRange },
-      { label: 'Subcontractors', icon: Handshake },
+      { label: 'Companies', icon: Building2, href: '/companies' },
+      { label: 'Contracts', icon: FileSignature, href: '/contracts' },
+      { label: 'Services', icon: Wrench, href: '/services' },
+      { label: 'Periods', icon: CalendarRange, href: '/periods' },
+      { label: 'Subcontractors', icon: Handshake, href: '/subcontractors' },
     ],
   },
   {
     label: 'People',
     items: [
-      { label: 'Persons', icon: Users },
-      { label: 'Accommodation', icon: BedDouble },
-      { label: 'Meals', icon: UtensilsCrossed },
-      { label: 'Positions & Users', icon: Network },
+      { label: 'Persons', icon: Users, href: '/persons' },
+      { label: 'Accommodation', icon: BedDouble, href: '/accommodation' },
+      { label: 'Meals', icon: UtensilsCrossed, href: '/meals' },
+      { label: 'Positions & Users', icon: Network, href: '/positions-users' },
     ],
   },
   {
     label: 'Settings',
-    items: [{ label: 'Reference Data', icon: Settings2 }],
+    items: [{ label: 'Reference Data', icon: Settings2, href: '/reference-data' }],
   },
 ];
+
+/** Flat lookup used by the [section] catch-all to validate a path and find its label. */
+export function findNavItem(pathname: string): NavItem | undefined {
+  return NAV_GROUPS.flatMap((g) => g.items).find((item) => item.href === pathname);
+}
 
 /** Resolves the current pathname to a nav label for the top bar. */
 export function sectionTitle(pathname: string): string {
