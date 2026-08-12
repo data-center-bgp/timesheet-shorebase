@@ -23,7 +23,7 @@ export default async function EditCompanyPage(props: PageProps<'/companies/[id]/
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const active = !company.end_date || company.end_date >= today;
+  const active = !company.end_date || company.end_date > today;
   const updateCompanyWithId = updateCompany.bind(null, companyId);
   const deactivateCompanyWithId = deactivateCompany.bind(null, companyId);
   const reactivateCompanyWithId = reactivateCompany.bind(null, companyId);

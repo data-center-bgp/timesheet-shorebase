@@ -12,7 +12,7 @@ type CompanyRow = {
 function isActive(company: CompanyRow): boolean {
   if (!company.end_date) return true;
   const today = new Date().toISOString().slice(0, 10);
-  return company.end_date >= today;
+  return company.end_date > today;
 }
 
 export default async function CompaniesPage() {
