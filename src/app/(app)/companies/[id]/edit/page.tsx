@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CompanyForm, type Company } from '../../CompanyForm';
 import { updateCompany, deactivateCompany, reactivateCompany } from '../../actions';
+import { todayLocal } from '@/lib/date';
 
 export default async function EditCompanyPage(props: PageProps<'/companies/[id]/edit'>) {
   const { id } = await props.params;
@@ -12,17 +13,27 @@ export default async function EditCompanyPage(props: PageProps<'/companies/[id]/
   }
 
   const supabase = await createClient();
-  const { data: company } = await supabase
+  const { data: company, error } = await supabase
     .from('company')
     .select('id, name, internal, start_date, end_date')
     .eq('id', companyId)
     .maybeSingle();
 
+  if (error) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load company: {error.message}
+        </p>
+      </div>
+    );
+  }
+
   if (!company) {
     notFound();
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   const active = !company.end_date || company.end_date > today;
   const updateCompanyWithId = updateCompany.bind(null, companyId);
   const deactivateCompanyWithId = deactivateCompany.bind(null, companyId);

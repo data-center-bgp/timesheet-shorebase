@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { todayLocal } from '@/lib/date';
 
 type CompanyRow = {
   id: number;
@@ -11,7 +12,7 @@ type CompanyRow = {
 
 function isActive(company: CompanyRow): boolean {
   if (!company.end_date) return true;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   return company.end_date > today;
 }
 

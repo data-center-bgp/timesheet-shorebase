@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV_GROUPS, type NavItem } from './nav';
+import { NAV_GROUPS, isNavItemActive, type NavItem } from './nav';
 
 function ItemRow({
   item,
@@ -81,7 +81,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                   key={item.label}
                   item={item}
                   collapsed={collapsed}
-                  active={item.href === pathname}
+                  active={isNavItemActive(item.href, pathname)}
                 />
               ))}
             </div>

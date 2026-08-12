@@ -84,11 +84,21 @@ export function findNavItem(pathname: string): NavItem | undefined {
   return NAV_GROUPS.flatMap((g) => g.items).find((item) => item.href === pathname);
 }
 
+/**
+ * Whether a nav item's href should be considered active for the current
+ * pathname — true for an exact match or any sub-route beneath it (e.g.
+ * `/companies` is active for `/companies/new` and `/companies/2/edit`).
+ */
+export function isNavItemActive(href: string, pathname: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(href + '/');
+}
+
 /** Resolves the current pathname to a nav label for the top bar. */
 export function sectionTitle(pathname: string): string {
   for (const group of NAV_GROUPS) {
     for (const item of group.items) {
-      if (item.href === pathname) return item.label;
+      if (isNavItemActive(item.href, pathname)) return item.label;
     }
   }
   return 'Shorebase';
