@@ -64,3 +64,18 @@ export async function updateCompany(
   revalidatePath('/companies');
   redirect('/companies');
 }
+
+export async function deactivateCompany(id: number) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase.from('company').update({ end_date: today }).eq('id', id);
+  revalidatePath('/companies');
+  revalidatePath(`/companies/${id}/edit`);
+}
+
+export async function reactivateCompany(id: number) {
+  const supabase = await createClient();
+  await supabase.from('company').update({ end_date: null }).eq('id', id);
+  revalidatePath('/companies');
+  revalidatePath(`/companies/${id}/edit`);
+}
