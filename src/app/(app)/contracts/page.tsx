@@ -17,12 +17,7 @@ export default async function ContractsPage() {
     .select('id, contract_number, start_date, end_date, company(name)')
     .order('contract_number', { ascending: true });
 
-  const contracts = ((data ?? []) as unknown as Array<Omit<ContractRow, 'company'> & { company: { name: string }[] }>).map(
-    (contract) => ({
-      ...contract,
-      company: contract.company?.[0] ?? null,
-    })
-  ) as ContractRow[];
+  const contracts = (data ?? []) as unknown as ContractRow[];
 
   return (
     <div className="px-6 py-8">
