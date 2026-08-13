@@ -5,3 +5,8 @@ export function todayLocal(): string {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+export function isActiveByEndDate(endDate: string | null): boolean {
+  if (!endDate) return true;
+  return endDate > todayLocal();
+}

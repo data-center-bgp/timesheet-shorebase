@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CompanyForm, type Company } from '../../CompanyForm';
 import { updateCompany, deactivateCompany, reactivateCompany } from '../../actions';
-import { todayLocal } from '@/lib/date';
+import { isActiveByEndDate } from '@/lib/date';
 
 export default async function EditCompanyPage(props: PageProps<'/companies/[id]/edit'>) {
   const { id } = await props.params;
@@ -33,8 +33,7 @@ export default async function EditCompanyPage(props: PageProps<'/companies/[id]/
     notFound();
   }
 
-  const today = todayLocal();
-  const active = !company.end_date || company.end_date > today;
+  const active = isActiveByEndDate(company.end_date);
   const updateCompanyWithId = updateCompany.bind(null, companyId);
   const deactivateCompanyWithId = deactivateCompany.bind(null, companyId);
   const reactivateCompanyWithId = reactivateCompany.bind(null, companyId);

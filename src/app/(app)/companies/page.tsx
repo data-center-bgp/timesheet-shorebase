@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { todayLocal } from '@/lib/date';
+import { isActiveByEndDate } from '@/lib/date';
 
 type CompanyRow = {
   id: number;
@@ -9,12 +9,6 @@ type CompanyRow = {
   start_date: string | null;
   end_date: string | null;
 };
-
-function isActive(company: CompanyRow): boolean {
-  if (!company.end_date) return true;
-  const today = todayLocal();
-  return company.end_date > today;
-}
 
 export default async function CompaniesPage() {
   const supabase = await createClient();
@@ -70,7 +64,7 @@ export default async function CompaniesPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {companies.map((company) => {
-                const active = isActive(company);
+                const active = isActiveByEndDate(company.end_date);
                 return (
                   <tr key={company.id}>
                     <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
