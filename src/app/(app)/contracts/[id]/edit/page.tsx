@@ -33,10 +33,21 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
     notFound();
   }
 
-  const { data: companiesData } = await supabase
+  const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
     .order('name', { ascending: true });
+
+  if (companiesError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load companies: {companiesError.message}
+        </p>
+      </div>
+    );
+  }
+
   const companies = companiesData ?? [];
 
   const active = isActiveByEndDate(contract.end_date);

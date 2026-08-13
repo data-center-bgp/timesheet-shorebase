@@ -4,10 +4,20 @@ import { createClient } from '@/lib/supabase/server';
 
 export default async function NewContractPage() {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('company')
     .select('id, name')
     .order('name', { ascending: true });
+
+  if (error) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load companies: {error.message}
+        </p>
+      </div>
+    );
+  }
 
   const companies = data ?? [];
 
