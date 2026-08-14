@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { isActiveByEndDate } from '@/lib/date';
 
 type ContractRow = {
   id: number;
@@ -8,6 +7,7 @@ type ContractRow = {
   contract_number: string;
   start_date: string;
   end_date: string;
+  active: boolean;
   company: { name: string } | null;
 };
 
@@ -15,7 +15,7 @@ export default async function ContractsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract')
-    .select('id, contract_name, contract_number, start_date, end_date, company(name)')
+    .select('id, contract_name, contract_number, start_date, end_date, active, company(name)')
     .order('contract_number', { ascending: true });
 
   const contracts = (data ?? []) as unknown as ContractRow[];
@@ -66,7 +66,7 @@ export default async function ContractsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {contracts.map((contract) => {
-                const active = isActiveByEndDate(contract.end_date);
+                const { active } = contract;
                 return (
                   <tr key={contract.id}>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
@@ -88,7 +88,7 @@ export default async function ContractsPage() {
                             : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                         }
                       >
-                        {active ? 'Active' : 'Expired'}
+                        {active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">

@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { todayLocal } from '@/lib/date';
 
 export type ContractFormState = {
   error: string | null;
@@ -109,10 +108,9 @@ export async function updateContract(
 
 export async function deactivateContract(id: number) {
   const supabase = await createClient();
-  const today = todayLocal();
   const { data, error } = await supabase
     .from('contract')
-    .update({ end_date: today })
+    .update({ active: false })
     .eq('id', id)
     .select('id');
 
@@ -131,7 +129,7 @@ export async function reactivateContract(id: number) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract')
-    .update({ end_date: null })
+    .update({ active: true })
     .eq('id', id)
     .select('id');
 

@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { isActiveByEndDate } from '@/lib/date';
 import { ContractForm, type Contract } from '../../ContractForm';
 import { updateContract, deactivateContract, reactivateContract } from '../../actions';
 
@@ -15,7 +14,7 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
   const supabase = await createClient();
   const { data: contract, error } = await supabase
     .from('contract')
-    .select('id, contract_name, contract_number, company_id, start_date, end_date')
+    .select('id, contract_name, contract_number, company_id, start_date, end_date, active')
     .eq('id', contractId)
     .maybeSingle();
 
@@ -50,7 +49,7 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
 
   const companies = companiesData ?? [];
 
-  const active = isActiveByEndDate(contract.end_date);
+  const { active } = contract;
   const updateContractWithId = updateContract.bind(null, contractId);
   const deactivateContractWithId = deactivateContract.bind(null, contractId);
   const reactivateContractWithId = reactivateContract.bind(null, contractId);
