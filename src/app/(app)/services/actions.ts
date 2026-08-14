@@ -34,7 +34,7 @@ export async function createService(
 
   const priceRaw = (formData.get('default_price_per_uom') as string | null)?.trim();
   const defaultPricePerUom = priceRaw ? Number(priceRaw) : NaN;
-  if (!priceRaw || Number.isNaN(defaultPricePerUom) || defaultPricePerUom < 0) {
+  if (!priceRaw || !Number.isFinite(defaultPricePerUom) || defaultPricePerUom < 0) {
     return { error: 'Default price per UoM is required and must be a non-negative number.' };
   }
 
@@ -89,7 +89,7 @@ export async function updateService(
 
   const priceRaw = (formData.get('default_price_per_uom') as string | null)?.trim();
   const defaultPricePerUom = priceRaw ? Number(priceRaw) : NaN;
-  if (!priceRaw || Number.isNaN(defaultPricePerUom) || defaultPricePerUom < 0) {
+  if (!priceRaw || !Number.isFinite(defaultPricePerUom) || defaultPricePerUom < 0) {
     return { error: 'Default price per UoM is required and must be a non-negative number.' };
   }
 
