@@ -119,3 +119,41 @@ export async function updateService(
   revalidatePath('/services');
   redirect('/services');
 }
+
+export async function deactivateService(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('shorebase_service')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Service not found.');
+  }
+
+  revalidatePath('/services');
+  revalidatePath(`/services/${id}/edit`);
+}
+
+export async function reactivateService(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('shorebase_service')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Service not found.');
+  }
+
+  revalidatePath('/services');
+  revalidatePath(`/services/${id}/edit`);
+}
