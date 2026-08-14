@@ -4,9 +4,10 @@ import { isActiveByEndDate } from '@/lib/date';
 
 type ContractRow = {
   id: number;
+  contract_name: string;
   contract_number: string;
-  start_date: string | null;
-  end_date: string | null;
+  start_date: string;
+  end_date: string;
   company: { name: string } | null;
 };
 
@@ -14,7 +15,7 @@ export default async function ContractsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract')
-    .select('id, contract_number, start_date, end_date, company(name)')
+    .select('id, contract_name, contract_number, start_date, end_date, company(name)')
     .order('contract_number', { ascending: true });
 
   const contracts = (data ?? []) as unknown as ContractRow[];
@@ -55,6 +56,7 @@ export default async function ContractsPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-zinc-200 bg-zinc-50 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
               <tr>
+                <th className="px-4 py-2">Contract name</th>
                 <th className="px-4 py-2">Contract number</th>
                 <th className="px-4 py-2">Company</th>
                 <th className="px-4 py-2">Status</th>
@@ -67,6 +69,9 @@ export default async function ContractsPage() {
                 const active = isActiveByEndDate(contract.end_date);
                 return (
                   <tr key={contract.id}>
+                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                      {contract.contract_name}
+                    </td>
                     <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
                       <Link href={`/contracts/${contract.id}/edit`} className="hover:underline">
                         {contract.contract_number}

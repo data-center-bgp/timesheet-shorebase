@@ -5,10 +5,11 @@ import type { ContractFormState } from './actions';
 
 export type Contract = {
   id: number;
+  contract_name: string;
   contract_number: string;
   company_id: number;
-  start_date: string | null;
-  end_date: string | null;
+  start_date: string;
+  end_date: string;
 };
 
 export type CompanyOption = {
@@ -34,20 +35,6 @@ export function ContractForm({
   return (
     <form action={formAction} className="mt-6 max-w-md space-y-4">
       <div className="space-y-1">
-        <label htmlFor="contract_number" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Contract number
-        </label>
-        <input
-          id="contract_number"
-          name="contract_number"
-          type="text"
-          required
-          defaultValue={contract?.contract_number}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-        />
-      </div>
-
-      <div className="space-y-1">
         <label htmlFor="company_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Company
         </label>
@@ -69,6 +56,34 @@ export function ContractForm({
         </select>
       </div>
 
+      <div className="space-y-1">
+        <label htmlFor="contract_name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Contract name
+        </label>
+        <input
+          id="contract_name"
+          name="contract_name"
+          type="text"
+          required
+          defaultValue={contract?.contract_name}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="contract_number" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Contract number
+        </label>
+        <input
+          id="contract_number"
+          name="contract_number"
+          type="text"
+          required
+          defaultValue={contract?.contract_number}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <label htmlFor="start_date" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -78,7 +93,8 @@ export function ContractForm({
             id="start_date"
             name="start_date"
             type="date"
-            defaultValue={contract?.start_date ?? ''}
+            required
+            defaultValue={contract?.start_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>
@@ -90,7 +106,8 @@ export function ContractForm({
             id="end_date"
             name="end_date"
             type="date"
-            defaultValue={contract?.end_date ?? ''}
+            required
+            defaultValue={contract?.end_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>

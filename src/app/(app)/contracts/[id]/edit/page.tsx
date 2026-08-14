@@ -15,7 +15,7 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
   const supabase = await createClient();
   const { data: contract, error } = await supabase
     .from('contract')
-    .select('id, contract_number, company_id, start_date, end_date')
+    .select('id, contract_name, contract_number, company_id, start_date, end_date')
     .eq('id', contractId)
     .maybeSingle();
 

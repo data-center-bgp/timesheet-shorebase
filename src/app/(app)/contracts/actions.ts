@@ -13,6 +13,11 @@ export async function createContract(
   _prevState: ContractFormState,
   formData: FormData,
 ): Promise<ContractFormState> {
+  const contractName = (formData.get('contract_name') as string | null)?.trim();
+  if (!contractName) {
+    return { error: 'Contract name is required.' };
+  }
+
   const contractNumber = (formData.get('contract_number') as string | null)?.trim();
   if (!contractNumber) {
     return { error: 'Contract number is required.' };
@@ -24,11 +29,19 @@ export async function createContract(
     return { error: 'Company is required.' };
   }
 
-  const startDate = (formData.get('start_date') as string | null) || null;
-  const endDate = (formData.get('end_date') as string | null) || null;
+  const startDate = (formData.get('start_date') as string | null)?.trim();
+  if (!startDate) {
+    return { error: 'Start date is required.' };
+  }
+
+  const endDate = (formData.get('end_date') as string | null)?.trim();
+  if (!endDate) {
+    return { error: 'End date is required.' };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.from('contract').insert({
+    contract_name: contractName,
     contract_number: contractNumber,
     company_id: companyId,
     start_date: startDate,
@@ -48,6 +61,11 @@ export async function updateContract(
   _prevState: ContractFormState,
   formData: FormData,
 ): Promise<ContractFormState> {
+  const contractName = (formData.get('contract_name') as string | null)?.trim();
+  if (!contractName) {
+    return { error: 'Contract name is required.' };
+  }
+
   const contractNumber = (formData.get('contract_number') as string | null)?.trim();
   if (!contractNumber) {
     return { error: 'Contract number is required.' };
@@ -59,13 +77,21 @@ export async function updateContract(
     return { error: 'Company is required.' };
   }
 
-  const startDate = (formData.get('start_date') as string | null) || null;
-  const endDate = (formData.get('end_date') as string | null) || null;
+  const startDate = (formData.get('start_date') as string | null)?.trim();
+  if (!startDate) {
+    return { error: 'Start date is required.' };
+  }
+
+  const endDate = (formData.get('end_date') as string | null)?.trim();
+  if (!endDate) {
+    return { error: 'End date is required.' };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
     .from('contract')
     .update({
+      contract_name: contractName,
       contract_number: contractNumber,
       company_id: companyId,
       start_date: startDate,
