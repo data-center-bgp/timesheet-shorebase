@@ -15,7 +15,7 @@ export default async function ServicesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('shorebase_service')
-    .select('id, code, name, default_price_per_uom, active, service_type(name), uom:default_uom_code(name)')
+    .select('id, code, name, default_price_per_uom, active, service_type(name), uom(name)')
     .order('code', { ascending: true });
 
   const services = (data ?? []) as unknown as ServiceRow[];
