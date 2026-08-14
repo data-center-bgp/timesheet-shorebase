@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { isActiveByEndDate } from '@/lib/date';
 
 type CompanyRow = {
   id: number;
@@ -8,13 +7,14 @@ type CompanyRow = {
   internal: boolean;
   start_date: string | null;
   end_date: string | null;
+  active: boolean;
 };
 
 export default async function CompaniesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('company')
-    .select('id, name, internal, start_date, end_date')
+    .select('id, name, internal, start_date, end_date, active')
     .order('name', { ascending: true });
 
   const companies = (data ?? []) as CompanyRow[];
@@ -64,7 +64,7 @@ export default async function CompaniesPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {companies.map((company) => {
-                const active = isActiveByEndDate(company.end_date);
+                const { active } = company;
                 return (
                   <tr key={company.id}>
                     <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">

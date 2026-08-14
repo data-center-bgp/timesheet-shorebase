@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { todayLocal } from '@/lib/date';
 
 export type CompanyFormState = {
   error: string | null;
@@ -68,10 +67,9 @@ export async function updateCompany(
 
 export async function deactivateCompany(id: number) {
   const supabase = await createClient();
-  const today = todayLocal();
   const { data, error } = await supabase
     .from('company')
-    .update({ end_date: today })
+    .update({ active: false })
     .eq('id', id)
     .select('id');
 
@@ -90,7 +88,7 @@ export async function reactivateCompany(id: number) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('company')
-    .update({ end_date: null })
+    .update({ active: true })
     .eq('id', id)
     .select('id');
 

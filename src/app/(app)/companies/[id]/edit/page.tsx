@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CompanyForm, type Company } from '../../CompanyForm';
 import { updateCompany, deactivateCompany, reactivateCompany } from '../../actions';
-import { isActiveByEndDate } from '@/lib/date';
 
 export default async function EditCompanyPage(props: PageProps<'/companies/[id]/edit'>) {
   const { id } = await props.params;
@@ -15,7 +14,7 @@ export default async function EditCompanyPage(props: PageProps<'/companies/[id]/
   const supabase = await createClient();
   const { data: company, error } = await supabase
     .from('company')
-    .select('id, name, internal, start_date, end_date')
+    .select('id, name, internal, start_date, end_date, active')
     .eq('id', companyId)
     .maybeSingle();
 
@@ -33,7 +32,7 @@ export default async function EditCompanyPage(props: PageProps<'/companies/[id]/
     notFound();
   }
 
-  const active = isActiveByEndDate(company.end_date);
+  const { active } = company;
   const updateCompanyWithId = updateCompany.bind(null, companyId);
   const deactivateCompanyWithId = deactivateCompany.bind(null, companyId);
   const reactivateCompanyWithId = reactivateCompany.bind(null, companyId);
