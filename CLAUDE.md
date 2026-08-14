@@ -11,6 +11,7 @@ Next.js (App Router, TypeScript, Tailwind) app backed by a **self-hosted Supabas
 - The initial schema migration (`supabase/migrations/20260807000000_init_schema.sql`) was generated directly from that ERD: 43 tables, FK constraints, all names normalized to snake_case. Two ERD relationships were intentionally *not* turned into real FK constraints because they point at non-key columns (`invoice_component.price_per_uom_contract`/`price_per_uom_independent` — see the comment block at the bottom of that migration file) — they look like value snapshots, not real foreign keys.
 - `activity.ss_type_code` has no FK — the ERD never resolved what it should reference; left as a plain column pending clarification.
 - Nullability/uniqueness beyond primary keys was **not** inferred from the ERD (it didn't specify them) — add `not null`/`unique` constraints as business rules are confirmed, via new migrations rather than editing the initial one.
+- **Status is always an explicit `active boolean not null default true` column** (see `company`, `contract`) — never derive or store status by mutating a business date like `start_date`/`end_date`. Those are real data and must never be touched by a status toggle. This exact bug shipped twice (Contract, then Company) before being caught both times.
 
 ## Supabase connection
 
