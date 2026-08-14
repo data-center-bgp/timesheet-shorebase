@@ -92,10 +92,10 @@ export default async function ContractsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {contract.start_date ?? '—'}
+                      {contract.start_date}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {contract.end_date ?? '—'}
+                      {contract.end_date}
                     </td>
                   </tr>
                 );
