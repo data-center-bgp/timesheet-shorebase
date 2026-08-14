@@ -172,7 +172,7 @@ export default async function ServicesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('shorebase_service')
-    .select('id, code, name, default_price_per_uom, active, service_type(name), uom:default_uom_code(name)')
+    .select('id, code, name, default_price_per_uom, active, service_type(name), uom(name)')
     .order('code', { ascending: true });
 
   const services = (data ?? []) as unknown as ServiceRow[];
@@ -266,7 +266,7 @@ export default async function ServicesPage() {
 }
 ```
 
-The `service_type(name)` and `uom:default_uom_code(name)` embeds rely on PostgREST auto-detecting each FK (`shorebase_service.service_type_code -> service_type.code` and `shorebase_service.default_uom_code -> uom.code`) — there's exactly one FK to each target table from `shorebase_service`, so no ambiguity. `uom:default_uom_code(...)` uses an explicit alias because the column name (`default_uom_code`) differs from the target table name (`uom`); `service_type(...)` needs no alias since the column name matches. The `as unknown as ServiceRow[]` cast is required for the same reason it was needed for Contract's list page (this Supabase client has no generated `Database` type, so PostgREST's embed typing can't be resolved statically) — do not remove it or replace it with a direct cast.
+The `service_type(name)` and `uom(name)` embeds rely on PostgREST auto-detecting each FK (`shorebase_service.service_type_code -> service_type.code` and `shorebase_service.default_uom_code -> uom.code`) — there's exactly one FK to each target table from `shorebase_service`, so no ambiguity and no alias/hint is needed for either, exactly matching how Contract's list page embeds `company(name)` with no alias despite the local FK column being `company_id`, not `company`. PostgREST resolves embeds by the FK's *target table name*, never the local column name — an aliased embed's target position must still name an actual table (`alias:target_table(...)`, optionally `alias:target_table!hint(...)` to disambiguate multiple FKs to the same table), never a column. The `as unknown as ServiceRow[]` cast is required for the same reason it was needed for Contract's list page (this Supabase client has no generated `Database` type, so PostgREST's embed typing can't be resolved statically) — do not remove it or replace it with a direct cast.
 
 - [ ] **Step 2: Run lint and build**
 
