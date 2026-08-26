@@ -132,3 +132,41 @@ export async function updatePersonMeal(
   revalidatePath('/meals');
   redirect('/meals');
 }
+
+export async function deactivatePersonMeal(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person_meal')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Meal record not found.');
+  }
+
+  revalidatePath('/meals');
+  revalidatePath(`/meals/${id}/edit`);
+}
+
+export async function reactivatePersonMeal(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person_meal')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Meal record not found.');
+  }
+
+  revalidatePath('/meals');
+  revalidatePath(`/meals/${id}/edit`);
+}
