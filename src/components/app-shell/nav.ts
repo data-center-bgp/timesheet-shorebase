@@ -8,6 +8,7 @@ import {
   FileSignature,
   FileStack,
   Handshake,
+  Layers,
   LayoutDashboard,
   Network,
   Receipt,
@@ -59,6 +60,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Companies', icon: Building2, href: '/companies' },
       { label: 'Contracts', icon: FileSignature, href: '/contracts' },
+      { label: 'Contract Services', icon: Layers, href: '/contract-services' },
       { label: 'Services', icon: Wrench, href: '/services' },
       { label: 'Periods', icon: CalendarRange, href: '/periods' },
       { label: 'Subcontractors', icon: Handshake, href: '/subcontractors' },
