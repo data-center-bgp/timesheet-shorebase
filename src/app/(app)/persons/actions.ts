@@ -89,3 +89,41 @@ export async function updatePerson(
   revalidatePath('/persons');
   redirect('/persons');
 }
+
+export async function deactivatePerson(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person')
+    .update({ is_active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Person not found.');
+  }
+
+  revalidatePath('/persons');
+  revalidatePath(`/persons/${id}/edit`);
+}
+
+export async function reactivatePerson(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person')
+    .update({ is_active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Person not found.');
+  }
+
+  revalidatePath('/persons');
+  revalidatePath(`/persons/${id}/edit`);
+}
