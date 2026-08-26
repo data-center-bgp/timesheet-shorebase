@@ -111,3 +111,41 @@ export async function updatePeriod(
   revalidatePath('/periods');
   redirect('/periods');
 }
+
+export async function lockPeriod(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('period')
+    .update({ locked: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Period not found.');
+  }
+
+  revalidatePath('/periods');
+  revalidatePath(`/periods/${id}/edit`);
+}
+
+export async function unlockPeriod(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('period')
+    .update({ locked: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Period not found.');
+  }
+
+  revalidatePath('/periods');
+  revalidatePath(`/periods/${id}/edit`);
+}
