@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ContractServiceForm, type ContractService } from '../../ContractServiceForm';
-import { updateContractService } from '../../actions';
+import { updateContractService, deactivateContractService, reactivateContractService } from '../../actions';
 
 export default async function EditContractServicePage(props: PageProps<'/contract-services/[id]/edit'>) {
   const { id } = await props.params;
@@ -99,16 +99,29 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
   const uoms = uomsData ?? [];
   const sumCalcTypes = sumCalcTypesData ?? [];
 
+  const { active } = contractService;
   const updateContractServiceWithId = updateContractService.bind(null, contractServiceId);
+  const deactivateContractServiceWithId = deactivateContractService.bind(null, contractServiceId);
+  const reactivateContractServiceWithId = reactivateContractService.bind(null, contractServiceId);
 
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
         MASTER DATA
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-        Edit contract service
-      </h2>
+      <div className="mt-1 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Edit contract service
+        </h2>
+        <form action={active ? deactivateContractServiceWithId : reactivateContractServiceWithId}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            {active ? 'Deactivate' : 'Reactivate'}
+          </button>
+        </form>
+      </div>
       <ContractServiceForm
         contractService={contractService as ContractService}
         contracts={contracts}

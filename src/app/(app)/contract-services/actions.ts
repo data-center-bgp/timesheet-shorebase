@@ -155,3 +155,41 @@ export async function updateContractService(
   revalidatePath('/contract-services');
   redirect('/contract-services');
 }
+
+export async function deactivateContractService(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('contract_service')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Contract service not found.');
+  }
+
+  revalidatePath('/contract-services');
+  revalidatePath(`/contract-services/${id}/edit`);
+}
+
+export async function reactivateContractService(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('contract_service')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Contract service not found.');
+  }
+
+  revalidatePath('/contract-services');
+  revalidatePath(`/contract-services/${id}/edit`);
+}
