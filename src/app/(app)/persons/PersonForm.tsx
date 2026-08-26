@@ -28,7 +28,14 @@ function toDatetimeLocalValue(isoString: string | null): string {
   const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return '';
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  // The write side sends the datetime-local input's value straight to
+  // Postgres with no timezone offset, so it's stored as the literal typed
+  // wall-clock numbers interpreted in the DB session's UTC timezone - not
+  // a real instant conversion. Reading it back must undo that the same
+  // literal way (UTC getters), not via the browser's local timezone, or
+  // the displayed value drifts by the browser's UTC offset on every
+  // re-fetch.
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
 }
 
 export function PersonForm({
