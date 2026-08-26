@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { PersonAccomodationForm, type PersonAccomodation } from '../../PersonAccomodationForm';
-import { updatePersonAccomodation } from '../../actions';
+import { updatePersonAccomodation, deactivatePersonAccomodation, reactivatePersonAccomodation } from '../../actions';
 
 export default async function EditAccommodationPage(props: PageProps<'/accommodation/[id]/edit'>) {
   const { id } = await props.params;
@@ -81,16 +81,29 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
   const contractServices = contractServicesData ?? [];
   const roomTypes = roomTypesData ?? [];
 
+  const { active } = accomodation;
   const updatePersonAccomodationWithId = updatePersonAccomodation.bind(null, accomodationId);
+  const deactivatePersonAccomodationWithId = deactivatePersonAccomodation.bind(null, accomodationId);
+  const reactivatePersonAccomodationWithId = reactivatePersonAccomodation.bind(null, accomodationId);
 
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
         PEOPLE
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-        Edit accommodation
-      </h2>
+      <div className="mt-1 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Edit accommodation
+        </h2>
+        <form action={active ? deactivatePersonAccomodationWithId : reactivatePersonAccomodationWithId}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            {active ? 'Deactivate' : 'Reactivate'}
+          </button>
+        </form>
+      </div>
       <PersonAccomodationForm
         accomodation={accomodation as PersonAccomodation}
         persons={persons}

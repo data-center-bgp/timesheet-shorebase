@@ -144,3 +144,41 @@ export async function updatePersonAccomodation(
   revalidatePath('/accommodation');
   redirect('/accommodation');
 }
+
+export async function deactivatePersonAccomodation(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person_accomodation')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Accommodation record not found.');
+  }
+
+  revalidatePath('/accommodation');
+  revalidatePath(`/accommodation/${id}/edit`);
+}
+
+export async function reactivatePersonAccomodation(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('person_accomodation')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Accommodation record not found.');
+  }
+
+  revalidatePath('/accommodation');
+  revalidatePath(`/accommodation/${id}/edit`);
+}
