@@ -63,3 +63,51 @@ export async function createPeriod(
   revalidatePath('/periods');
   redirect('/periods');
 }
+
+export async function updatePeriod(
+  id: number,
+  _prevState: PeriodFormState,
+  formData: FormData,
+): Promise<PeriodFormState> {
+  const contractIdRaw = formData.get('contract_id') as string | null;
+  const contractId = contractIdRaw ? Number(contractIdRaw) : NaN;
+  if (!contractIdRaw || Number.isNaN(contractId)) {
+    return { error: 'Contract is required.' };
+  }
+
+  const name = (formData.get('name') as string | null)?.trim();
+  if (!name) {
+    return { error: 'Name is required.' };
+  }
+
+  const startDate = (formData.get('start_date') as string | null)?.trim();
+  if (!startDate) {
+    return { error: 'Start date is required.' };
+  }
+
+  const endDate = (formData.get('end_date') as string | null)?.trim();
+  if (!endDate) {
+    return { error: 'End date is required.' };
+  }
+
+  const supabase = await createClient();
+  const companyId = await lookupCompanyIdForContract(supabase, contractId);
+
+  const { error } = await supabase
+    .from('period')
+    .update({
+      contract_id: contractId,
+      company_id: companyId,
+      name,
+      start_date: startDate,
+      end_date: endDate,
+    })
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/periods');
+  redirect('/periods');
+}
