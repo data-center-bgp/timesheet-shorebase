@@ -47,3 +47,42 @@ export async function createJobTitle(
   revalidatePath('/job-titles');
   redirect('/job-titles');
 }
+
+export async function updateJobTitle(
+  id: number,
+  _prevState: JobTitleFormState,
+  formData: FormData,
+): Promise<JobTitleFormState> {
+  const code = (formData.get('code') as string | null)?.trim();
+  if (!code) {
+    return { error: 'Code is required.' };
+  }
+
+  const name = (formData.get('name') as string | null)?.trim();
+  if (!name) {
+    return { error: 'Name is required.' };
+  }
+
+  const startDate = (formData.get('start_date') as string | null)?.trim();
+  if (!startDate) {
+    return { error: 'Start date is required.' };
+  }
+
+  const endDate = (formData.get('end_date') as string | null)?.trim();
+  if (!endDate) {
+    return { error: 'End date is required.' };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('job_title')
+    .update({ code, name, start_date: startDate, end_date: endDate })
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/job-titles');
+  redirect('/job-titles');
+}
