@@ -124,3 +124,41 @@ export async function updateJobPosition(
   revalidatePath('/job-positions');
   redirect('/job-positions');
 }
+
+export async function deactivateJobPosition(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('job_position')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Job position not found.');
+  }
+
+  revalidatePath('/job-positions');
+  revalidatePath(`/job-positions/${id}/edit`);
+}
+
+export async function reactivateJobPosition(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('job_position')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Job position not found.');
+  }
+
+  revalidatePath('/job-positions');
+  revalidatePath(`/job-positions/${id}/edit`);
+}

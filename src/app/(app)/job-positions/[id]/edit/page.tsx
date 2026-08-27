@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { JobPositionForm, type JobPosition } from '../../JobPositionForm';
-import { updateJobPosition } from '../../actions';
+import { updateJobPosition, deactivateJobPosition, reactivateJobPosition } from '../../actions';
 
 export default async function EditJobPositionPage(props: PageProps<'/job-positions/[id]/edit'>) {
   const { id } = await props.params;
@@ -86,16 +86,29 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
     (position) => position.id !== jobPositionId,
   );
 
+  const { active } = jobPosition;
   const updateJobPositionWithId = updateJobPosition.bind(null, jobPositionId);
+  const deactivateJobPositionWithId = deactivateJobPosition.bind(null, jobPositionId);
+  const reactivateJobPositionWithId = reactivateJobPosition.bind(null, jobPositionId);
 
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
         PEOPLE
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-        Edit job position
-      </h2>
+      <div className="mt-1 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Edit job position
+        </h2>
+        <form action={active ? deactivateJobPositionWithId : reactivateJobPositionWithId}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            {active ? 'Deactivate' : 'Reactivate'}
+          </button>
+        </form>
+      </div>
       <JobPositionForm
         jobPosition={jobPosition as JobPosition}
         companies={companies}
