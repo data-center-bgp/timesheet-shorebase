@@ -164,3 +164,41 @@ export async function updatePlanActivity(
   revalidatePath('/activities');
   redirect('/activities');
 }
+
+export async function deactivateActivity(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('activity')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Activity not found.');
+  }
+
+  revalidatePath('/activities');
+  revalidatePath(`/activities/${id}/edit`);
+}
+
+export async function reactivateActivity(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('activity')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Activity not found.');
+  }
+
+  revalidatePath('/activities');
+  revalidatePath(`/activities/${id}/edit`);
+}
