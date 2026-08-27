@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { UserPositionForm, type UserPosition } from '../../UserPositionForm';
-import { updateUserPosition } from '../../actions';
+import { updateUserPosition, deactivateUserPosition, reactivateUserPosition } from '../../actions';
 
 export default async function EditUserPositionPage(props: PageProps<'/user-positions/[id]/edit'>) {
   const { id } = await props.params;
@@ -65,16 +65,29 @@ export default async function EditUserPositionPage(props: PageProps<'/user-posit
   const users = usersData ?? [];
   const jobPositions = jobPositionsData ?? [];
 
+  const { active } = userPosition;
   const updateUserPositionWithId = updateUserPosition.bind(null, userPositionId);
+  const deactivateUserPositionWithId = deactivateUserPosition.bind(null, userPositionId);
+  const reactivateUserPositionWithId = reactivateUserPosition.bind(null, userPositionId);
 
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
         PEOPLE
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-        Edit user position
-      </h2>
+      <div className="mt-1 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Edit user position
+        </h2>
+        <form action={active ? deactivateUserPositionWithId : reactivateUserPositionWithId}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            {active ? 'Deactivate' : 'Reactivate'}
+          </button>
+        </form>
+      </div>
       <UserPositionForm
         userPosition={userPosition as UserPosition}
         users={users}

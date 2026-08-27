@@ -95,3 +95,41 @@ export async function updateUserPosition(
   revalidatePath('/user-positions');
   redirect('/user-positions');
 }
+
+export async function deactivateUserPosition(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('user_position')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('User position not found.');
+  }
+
+  revalidatePath('/user-positions');
+  revalidatePath(`/user-positions/${id}/edit`);
+}
+
+export async function reactivateUserPosition(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('user_position')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('User position not found.');
+  }
+
+  revalidatePath('/user-positions');
+  revalidatePath(`/user-positions/${id}/edit`);
+}
