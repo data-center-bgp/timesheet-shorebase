@@ -18,6 +18,7 @@ import {
   Ship,
   Stamp,
   Tag,
+  UserCheck,
   UserCog,
   UtensilsCrossed,
   Users,
@@ -83,6 +84,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Job Titles', icon: Tag, href: '/job-titles' },
       { label: 'Job Positions', icon: Network, href: '/job-positions' },
       { label: 'Users', icon: UserCog, href: '/users' },
+      { label: 'User Positions', icon: UserCheck, href: '/user-positions' },
     ],
   },
   {
