@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { JobTitleForm, type JobTitle } from '../../JobTitleForm';
-import { updateJobTitle } from '../../actions';
+import { updateJobTitle, deactivateJobTitle, reactivateJobTitle } from '../../actions';
 
 export default async function EditJobTitlePage(props: PageProps<'/job-titles/[id]/edit'>) {
   const { id } = await props.params;
@@ -32,16 +32,29 @@ export default async function EditJobTitlePage(props: PageProps<'/job-titles/[id
     notFound();
   }
 
+  const { active } = jobTitle;
   const updateJobTitleWithId = updateJobTitle.bind(null, jobTitleId);
+  const deactivateJobTitleWithId = deactivateJobTitle.bind(null, jobTitleId);
+  const reactivateJobTitleWithId = reactivateJobTitle.bind(null, jobTitleId);
 
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
         PEOPLE
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-        Edit job title
-      </h2>
+      <div className="mt-1 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Edit job title
+        </h2>
+        <form action={active ? deactivateJobTitleWithId : reactivateJobTitleWithId}>
+          <button
+            type="submit"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            {active ? 'Deactivate' : 'Reactivate'}
+          </button>
+        </form>
+      </div>
       <JobTitleForm jobTitle={jobTitle as JobTitle} action={updateJobTitleWithId} submitLabel="Save changes" />
     </div>
   );

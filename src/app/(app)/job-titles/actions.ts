@@ -86,3 +86,41 @@ export async function updateJobTitle(
   revalidatePath('/job-titles');
   redirect('/job-titles');
 }
+
+export async function deactivateJobTitle(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('job_title')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Job title not found.');
+  }
+
+  revalidatePath('/job-titles');
+  revalidatePath(`/job-titles/${id}/edit`);
+}
+
+export async function reactivateJobTitle(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('job_title')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Job title not found.');
+  }
+
+  revalidatePath('/job-titles');
+  revalidatePath(`/job-titles/${id}/edit`);
+}
