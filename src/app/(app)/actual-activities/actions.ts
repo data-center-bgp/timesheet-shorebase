@@ -138,3 +138,41 @@ export async function updateActualActivity(
   revalidatePath('/actual-activities');
   redirect('/actual-activities');
 }
+
+export async function deactivateActualActivity(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('activity')
+    .update({ active: false })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Actual activity not found.');
+  }
+
+  revalidatePath('/actual-activities');
+  revalidatePath(`/actual-activities/${id}/edit`);
+}
+
+export async function reactivateActualActivity(id: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('activity')
+    .update({ active: true })
+    .eq('id', id)
+    .select('id');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Actual activity not found.');
+  }
+
+  revalidatePath('/actual-activities');
+  revalidatePath(`/actual-activities/${id}/edit`);
+}
