@@ -16,7 +16,7 @@
 - `plan_activity_id` IS a form field (the "Plan Activity" dropdown) — the one user-chosen value everything else derives from. If it's changed on an edit, all seven derived fields re-snapshot from whichever Plan is now selected.
 - **THE SELF-REFERENTIAL EMBED EXCEPTION — read this before writing the list page query.** `activity.plan_activity_id` points at `activity` itself. Every other embed in this codebase resolves by target-table-name with NO alias, because that's sufficient to disambiguate when there's exactly one FK to that target. Self-joins are different: PostgREST requires an explicit alias + FK hint for a self-referencing embed regardless of FK count, because the target table name is literally identical to the base query's own table name. The correct, REQUIRED syntax here is:
   ```
-  plan_activity:activity!plan_activity_id(code)
+  plan_activity:plan_activity_id(code)
   ```
   Do NOT write a bare `activity(code)` by analogy with every other embed in this plan/codebase — that would be ambiguous/incorrect for a self-join specifically. This is the first embed alias used anywhere in this app, and it is correct precisely because this is the one self-referential case.
 - `active boolean not null default true` — Deactivate/Reactivate flips `active` only, never any of the seven derived fields, `status_code`, `plan_activity_id`, or the `actual_*` fields.
@@ -127,7 +127,7 @@ export default async function ActualActivitiesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('activity')
-    .select('id, active, actual_amount, plan_activity:activity!plan_activity_id(code)')
+    .select('id, active, actual_amount, plan_activity:plan_activity_id(code)')
     .eq('status_code', 'A')
     .order('id', { ascending: true });
 
@@ -208,7 +208,7 @@ export default async function ActualActivitiesPage() {
 }
 ```
 
-`plan_activity:activity!plan_activity_id(code)` is the self-referential embed exception explained in the Global Constraints above — an ALIASED embed with an explicit FK hint, unlike every other embed in this codebase. Do not remove the alias or the `!plan_activity_id` hint. Ordered by `id` ascending — there's no date column on Actual rows to order by (unlike `Plan Activity`'s `plan_date`). Eyebrow label is "OPERATIONS".
+`plan_activity:plan_activity_id(code)` is the self-referential embed exception explained in the Global Constraints above — an ALIASED embed keyed directly by the FK column name (no target-table prefix), unlike every other embed in this codebase. Do not remove the alias or rewrite this as `activity!plan_activity_id(code)` — that form resolves as the reverse one-to-many direction instead of the forward parent lookup. Ordered by `id` ascending — there's no date column on Actual rows to order by (unlike `Plan Activity`'s `plan_date`). Eyebrow label is "OPERATIONS".
 
 - [ ] **Step 2: Run lint and build**
 

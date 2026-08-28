@@ -44,7 +44,7 @@ This extends the derivation pattern furthest yet — from `PersonAccomodation`'s
 **This is a real exception to the established "no alias needed, PostgREST resolves by target-table-name" rule** (`CLAUDE.md`'s documented convention, which has held for every embed in this codebase so far): a self-join's embed target table name is *identical* to the base query's own table name (`activity` selecting from `activity`), which is exactly the kind of self-reference PostgREST requires an explicit hint for, regardless of the FK-uniqueness reasoning that governs every other embed here. The correct syntax is:
 
 ```
-plan_activity:activity!plan_activity_id(code)
+plan_activity:plan_activity_id(code)
 ```
 
 — an aliased embed (`plan_activity:`) naming the FK column as the hint. Do not "simplify" this to a bare `activity(code)` by analogy with every other embed in this codebase; that analogy doesn't hold for self-joins. This is the first embed alias/hint used anywhere in this app, and it is correct specifically because this is a self-referential case, not a multi-FK-to-same-target case.
