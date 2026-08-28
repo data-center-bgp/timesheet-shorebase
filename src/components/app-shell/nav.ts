@@ -52,7 +52,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Timesheets', icon: ClipboardList, href: '/timesheets' },
       { label: 'Activities', icon: Activity, href: '/activities' },
       { label: 'Actual Activities', icon: ClipboardCheck, href: '/actual-activities' },
-      { label: 'Material Handling', icon: Container, href: '/material-handling' },
+      { label: 'MH Jobs', icon: Container, href: '/material-handling-jobs' },
+      { label: 'MH Items', icon: PackageSearch, href: '/material-handling-items' },
+      { label: 'MH Equipment', icon: HardHat, href: '/material-handling-equipment' },
     ],
   },
   {
