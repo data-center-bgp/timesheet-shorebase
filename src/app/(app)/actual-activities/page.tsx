@@ -12,7 +12,7 @@ export default async function ActualActivitiesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('activity')
-    .select('id, active, actual_amount, plan_activity:activity!plan_activity_id(code)')
+    .select('id, active, actual_amount, plan_activity:plan_activity_id(code)')
     .eq('status_code', 'A')
     .order('id', { ascending: true });
 
