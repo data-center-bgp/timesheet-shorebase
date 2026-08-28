@@ -34,12 +34,12 @@ function readItemFields(formData: FormData): ReadItemFieldsResult {
   const jobId = Number(jobIdRaw);
   const productId = Number(productIdRaw);
   const quantity = Number(quantityRaw);
-  if (Number.isNaN(jobId) || Number.isNaN(productId) || Number.isNaN(quantity)) {
+  if (Number.isNaN(jobId) || Number.isNaN(productId) || !Number.isFinite(quantity) || quantity < 0) {
     return { error: 'Invalid job, product, or quantity.' };
   }
 
   const unitSize = unitSizeRaw ? Number(unitSizeRaw) : null;
-  if (unitSizeRaw && Number.isNaN(unitSize)) {
+  if (unitSize !== null && (!Number.isFinite(unitSize) || unitSize < 0)) {
     return { error: 'Invalid unit size.' };
   }
 
