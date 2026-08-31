@@ -12,6 +12,7 @@ import {
   Handshake,
   Layers,
   LayoutDashboard,
+  ListOrdered,
   Network,
   PackageSearch,
   Receipt,
@@ -23,6 +24,7 @@ import {
   UserCog,
   UtensilsCrossed,
   Users,
+  Workflow,
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
@@ -60,6 +62,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Approvals & Billing',
     items: [
+      { label: 'Approval Workflows', icon: Workflow, href: '/approval-workflows' },
+      { label: 'Workflow Stages', icon: ListOrdered, href: '/approval-workflow-stages' },
       { label: 'Approvals', icon: Stamp, href: '/approvals' },
       { label: 'Summary Timesheets', icon: FileStack, href: '/summary-timesheets' },
       { label: 'Invoices', icon: Receipt, href: '/invoices' },
