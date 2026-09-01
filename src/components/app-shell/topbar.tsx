@@ -7,13 +7,13 @@ import type { Theme } from '@/components/theme/constants';
 import { sectionTitle } from './nav';
 
 export function Topbar({
-  email,
+  displayName,
   collapsed,
   onToggle,
   signOut,
   serverTheme,
 }: {
-  email: string | undefined;
+  displayName: string | undefined;
   collapsed: boolean;
   onToggle: () => void;
   /** Server Action, passed down from the layout. */
@@ -43,9 +43,9 @@ export function Topbar({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        {email && (
+        {displayName && (
           <span className="hidden max-w-[18rem] truncate font-mono text-xs text-zinc-500 lg:inline dark:text-zinc-400">
-            {email}
+            {displayName}
           </span>
         )}
         <ThemeToggle serverTheme={serverTheme} />

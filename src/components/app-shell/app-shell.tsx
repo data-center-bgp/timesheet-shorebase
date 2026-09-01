@@ -8,14 +8,14 @@ import type { Theme } from '@/components/theme/constants';
 
 export function AppShell({
   children,
-  email,
+  displayName,
   initialCollapsed,
   signOut,
   serverTheme,
   isMaster,
 }: {
   children: ReactNode;
-  email: string | undefined;
+  displayName: string | undefined;
   /** Server-rendered from the cookie, so the first paint is already correct. */
   initialCollapsed: boolean;
   signOut: () => Promise<void>;
@@ -51,7 +51,7 @@ export function AppShell({
       <Sidebar collapsed={collapsed} isMaster={isMaster} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
-          email={email}
+          displayName={displayName}
           collapsed={collapsed}
           onToggle={toggle}
           signOut={signOut}

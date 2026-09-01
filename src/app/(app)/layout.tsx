@@ -25,10 +25,11 @@ export default async function AppLayout({
 
   const { data: appUser } = await supabase
     .from('app_user')
-    .select('role_code')
+    .select('name, role_code')
     .eq('id', user.id)
     .maybeSingle();
   const isMaster = appUser?.role_code === 'master';
+  const displayName = appUser?.name ?? email;
 
   const cookieStore = await cookies();
   const collapsed = cookieStore.get(SIDEBAR_COOKIE)?.value === 'true';
@@ -39,7 +40,7 @@ export default async function AppLayout({
 
   return (
     <AppShell
-      email={email}
+      displayName={displayName}
       initialCollapsed={collapsed}
       signOut={signOut}
       serverTheme={serverTheme}
