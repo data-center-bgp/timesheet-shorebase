@@ -40,6 +40,7 @@ export default async function EditMaterialHandlingJobPage(props: PageProps<'/mat
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (contractServicesError) {
@@ -52,9 +53,20 @@ export default async function EditMaterialHandlingJobPage(props: PageProps<'/mat
     );
   }
 
+  let contractServices = contractServicesData ?? [];
+  if (job.contract_service_id && !contractServices.some((c) => c.id === job.contract_service_id)) {
+    const { data: currentContractService } = await supabase
+      .from('contract_service')
+      .select('id, code')
+      .eq('id', job.contract_service_id)
+      .maybeSingle();
+    if (currentContractService) contractServices = [...contractServices, currentContractService];
+  }
+
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
 
   if (subcontractorsError) {
@@ -67,11 +79,23 @@ export default async function EditMaterialHandlingJobPage(props: PageProps<'/mat
     );
   }
 
-  const contractServices = contractServicesData ?? [];
-  const subcontractors = (subcontractorsData ?? []) as unknown as {
+  let subcontractors = (subcontractorsData ?? []) as unknown as {
     id: number;
     company: { name: string } | null;
   }[];
+  if (job.sub_contractor_id && !subcontractors.some((s) => s.id === job.sub_contractor_id)) {
+    const { data: currentSubcontractor } = await supabase
+      .from('subcontractors')
+      .select('id, company(name)')
+      .eq('id', job.sub_contractor_id)
+      .maybeSingle();
+    if (currentSubcontractor) {
+      subcontractors = [
+        ...subcontractors,
+        currentSubcontractor as unknown as { id: number; company: { name: string } | null },
+      ];
+    }
+  }
 
   const { active } = job;
   const updateMaterialHandlingJobWithId = updateMaterialHandlingJob.bind(null, jobId);

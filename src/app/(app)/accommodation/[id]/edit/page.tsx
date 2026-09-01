@@ -35,6 +35,7 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
   const { data: personsData, error: personsError } = await supabase
     .from('person')
     .select('id, name')
+    .eq('is_active', true)
     .order('name', { ascending: true });
 
   if (personsError) {
@@ -47,9 +48,20 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
     );
   }
 
+  let persons = personsData ?? [];
+  if (accomodation.person_id && !persons.some((p) => p.id === accomodation.person_id)) {
+    const { data: currentPerson } = await supabase
+      .from('person')
+      .select('id, name')
+      .eq('id', accomodation.person_id)
+      .maybeSingle();
+    if (currentPerson) persons = [...persons, currentPerson];
+  }
+
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (contractServicesError) {
@@ -60,6 +72,19 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
         </p>
       </div>
     );
+  }
+
+  let contractServices = contractServicesData ?? [];
+  if (
+    accomodation.contract_service_id &&
+    !contractServices.some((cs) => cs.id === accomodation.contract_service_id)
+  ) {
+    const { data: currentContractService } = await supabase
+      .from('contract_service')
+      .select('id, code')
+      .eq('id', accomodation.contract_service_id)
+      .maybeSingle();
+    if (currentContractService) contractServices = [...contractServices, currentContractService];
   }
 
   const { data: roomTypesData, error: roomTypesError } = await supabase
@@ -77,8 +102,6 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
     );
   }
 
-  const persons = personsData ?? [];
-  const contractServices = contractServicesData ?? [];
   const roomTypes = roomTypesData ?? [];
 
   const { active } = accomodation;

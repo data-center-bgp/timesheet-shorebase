@@ -68,6 +68,7 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_name')
+    .eq('active', true)
     .order('contract_name', { ascending: true });
   if (contractsError) {
     return (
@@ -82,6 +83,7 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (subcontractorsError) {
     return (
@@ -96,6 +98,7 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (companiesError) {
     return (
@@ -109,12 +112,44 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
 
   const approvalTypes = approvalTypesData ?? [];
   const timesheetTypes = timesheetTypesData ?? [];
-  const contracts = contractsData ?? [];
-  const subcontractors = (subcontractorsData ?? []) as unknown as {
+  let contracts = contractsData ?? [];
+  let subcontractors = (subcontractorsData ?? []) as unknown as {
     id: number;
     company: { name: string } | null;
   }[];
-  const companies = companiesData ?? [];
+  let companies = companiesData ?? [];
+
+  if (workflow.contract_id && !contracts.some((c) => c.id === workflow.contract_id)) {
+    const { data: currentContract } = await supabase
+      .from('contract')
+      .select('id, contract_name')
+      .eq('id', workflow.contract_id)
+      .maybeSingle();
+    if (currentContract) contracts = [...contracts, currentContract];
+  }
+
+  if (workflow.subcontractor_id && !subcontractors.some((s) => s.id === workflow.subcontractor_id)) {
+    const { data: currentSubcontractor } = await supabase
+      .from('subcontractors')
+      .select('id, company(name)')
+      .eq('id', workflow.subcontractor_id)
+      .maybeSingle();
+    if (currentSubcontractor) {
+      subcontractors = [
+        ...subcontractors,
+        currentSubcontractor as unknown as { id: number; company: { name: string } | null },
+      ];
+    }
+  }
+
+  if (workflow.company_id && !companies.some((c) => c.id === workflow.company_id)) {
+    const { data: currentCompany } = await supabase
+      .from('company')
+      .select('id, name')
+      .eq('id', workflow.company_id)
+      .maybeSingle();
+    if (currentCompany) companies = [...companies, currentCompany];
+  }
 
   const { active } = workflow;
   const updateApprovalWorkflowWithId = updateApprovalWorkflow.bind(null, workflowId);

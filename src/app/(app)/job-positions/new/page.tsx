@@ -8,6 +8,7 @@ export default async function NewJobPositionPage() {
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {
@@ -23,6 +24,7 @@ export default async function NewJobPositionPage() {
   const { data: jobTitlesData, error: jobTitlesError } = await supabase
     .from('job_title')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobTitlesError) {
@@ -38,6 +40,7 @@ export default async function NewJobPositionPage() {
   const { data: parentPositionsData, error: parentPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (parentPositionsError) {

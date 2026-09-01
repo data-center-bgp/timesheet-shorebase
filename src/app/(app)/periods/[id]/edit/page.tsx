@@ -35,6 +35,7 @@ export default async function EditPeriodPage(props: PageProps<'/periods/[id]/edi
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_number')
+    .eq('active', true)
     .order('contract_number', { ascending: true });
 
   if (contractsError) {
@@ -47,7 +48,15 @@ export default async function EditPeriodPage(props: PageProps<'/periods/[id]/edi
     );
   }
 
-  const contracts = contractsData ?? [];
+  let contracts = contractsData ?? [];
+  if (period.contract_id && !contracts.some((c) => c.id === period.contract_id)) {
+    const { data: currentContract } = await supabase
+      .from('contract')
+      .select('id, contract_number')
+      .eq('id', period.contract_id)
+      .maybeSingle();
+    if (currentContract) contracts = [...contracts, currentContract];
+  }
 
   const { locked } = period;
   const updatePeriodWithId = updatePeriod.bind(null, periodId);

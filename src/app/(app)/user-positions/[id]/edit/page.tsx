@@ -50,6 +50,7 @@ export default async function EditUserPositionPage(props: PageProps<'/user-posit
   const { data: jobPositionsData, error: jobPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobPositionsError) {
@@ -63,7 +64,18 @@ export default async function EditUserPositionPage(props: PageProps<'/user-posit
   }
 
   const users = usersData ?? [];
-  const jobPositions = jobPositionsData ?? [];
+  let jobPositions = jobPositionsData ?? [];
+  if (
+    userPosition.job_position_id &&
+    !jobPositions.some((jp) => jp.id === userPosition.job_position_id)
+  ) {
+    const { data: currentJobPosition } = await supabase
+      .from('job_position')
+      .select('id, name')
+      .eq('id', userPosition.job_position_id)
+      .maybeSingle();
+    if (currentJobPosition) jobPositions = [...jobPositions, currentJobPosition];
+  }
 
   const { active } = userPosition;
   const updateUserPositionWithId = updateUserPosition.bind(null, userPositionId);

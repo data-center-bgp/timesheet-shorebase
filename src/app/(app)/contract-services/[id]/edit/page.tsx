@@ -37,6 +37,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_number')
+    .eq('active', true)
     .order('contract_number', { ascending: true });
 
   if (contractsError) {
@@ -52,6 +53,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
   const { data: servicesData, error: servicesError } = await supabase
     .from('shorebase_service')
     .select('id, code, name, default_uom_code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (servicesError) {
@@ -94,8 +96,32 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
     );
   }
 
-  const contracts = contractsData ?? [];
-  const services = servicesData ?? [];
+  let contracts = contractsData ?? [];
+  if (
+    contractService.contract_id &&
+    !contracts.some((c) => c.id === contractService.contract_id)
+  ) {
+    const { data: currentContract } = await supabase
+      .from('contract')
+      .select('id, contract_number')
+      .eq('id', contractService.contract_id)
+      .maybeSingle();
+    if (currentContract) contracts = [...contracts, currentContract];
+  }
+
+  let services = servicesData ?? [];
+  if (
+    contractService.service_id &&
+    !services.some((s) => s.id === contractService.service_id)
+  ) {
+    const { data: currentService } = await supabase
+      .from('shorebase_service')
+      .select('id, code, name, default_uom_code')
+      .eq('id', contractService.service_id)
+      .maybeSingle();
+    if (currentService) services = [...services, currentService];
+  }
+
   const uoms = uomsData ?? [];
   const sumCalcTypes = sumCalcTypesData ?? [];
 

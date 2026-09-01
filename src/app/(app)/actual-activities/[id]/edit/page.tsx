@@ -37,6 +37,7 @@ export default async function EditActualActivityPage(props: PageProps<'/actual-a
     .from('activity')
     .select('id, code')
     .eq('status_code', 'P')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (planActivitiesError) {
@@ -49,7 +50,18 @@ export default async function EditActualActivityPage(props: PageProps<'/actual-a
     );
   }
 
-  const planActivities = planActivitiesData ?? [];
+  let planActivities = planActivitiesData ?? [];
+  if (
+    actualActivity.plan_activity_id &&
+    !planActivities.some((p) => p.id === actualActivity.plan_activity_id)
+  ) {
+    const { data: currentPlanActivity } = await supabase
+      .from('activity')
+      .select('id, code')
+      .eq('id', actualActivity.plan_activity_id)
+      .maybeSingle();
+    if (currentPlanActivity) planActivities = [...planActivities, currentPlanActivity];
+  }
 
   const { active } = actualActivity;
   const updateActualActivityWithId = updateActualActivity.bind(null, actualActivityId);

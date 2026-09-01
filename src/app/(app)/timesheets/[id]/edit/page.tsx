@@ -66,6 +66,7 @@ export default async function EditTimesheetPage(props: PageProps<'/timesheets/[i
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
   if (contractServicesError) {
     return (
@@ -77,9 +78,23 @@ export default async function EditTimesheetPage(props: PageProps<'/timesheets/[i
     );
   }
 
+  let contractServices = contractServicesData ?? [];
+  if (
+    timesheet.contract_service_id &&
+    !contractServices.some((c) => c.id === timesheet.contract_service_id)
+  ) {
+    const { data: currentContractService } = await supabase
+      .from('contract_service')
+      .select('id, code')
+      .eq('id', timesheet.contract_service_id)
+      .maybeSingle();
+    if (currentContractService) contractServices = [...contractServices, currentContractService];
+  }
+
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (subcontractorsError) {
     return (
@@ -91,9 +106,31 @@ export default async function EditTimesheetPage(props: PageProps<'/timesheets/[i
     );
   }
 
+  let subcontractors = (subcontractorsData ?? []) as unknown as {
+    id: number;
+    company: { name: string } | null;
+  }[];
+  if (
+    timesheet.subcontractor_id &&
+    !subcontractors.some((s) => s.id === timesheet.subcontractor_id)
+  ) {
+    const { data: currentSubcontractor } = await supabase
+      .from('subcontractors')
+      .select('id, company(name)')
+      .eq('id', timesheet.subcontractor_id)
+      .maybeSingle();
+    if (currentSubcontractor) {
+      subcontractors = [
+        ...subcontractors,
+        currentSubcontractor as unknown as { id: number; company: { name: string } | null },
+      ];
+    }
+  }
+
   const { data: jettyShipsData, error: jettyShipsError } = await supabase
     .from('jetty_ship')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (jettyShipsError) {
     return (
@@ -105,9 +142,20 @@ export default async function EditTimesheetPage(props: PageProps<'/timesheets/[i
     );
   }
 
+  let jettyShips = jettyShipsData ?? [];
+  if (timesheet.jetty_ship_id && !jettyShips.some((j) => j.id === timesheet.jetty_ship_id)) {
+    const { data: currentJettyShip } = await supabase
+      .from('jetty_ship')
+      .select('id, name')
+      .eq('id', timesheet.jetty_ship_id)
+      .maybeSingle();
+    if (currentJettyShip) jettyShips = [...jettyShips, currentJettyShip];
+  }
+
   const { data: mhJobsData, error: mhJobsError } = await supabase
     .from('material_handling_job')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (mhJobsError) {
     return (
@@ -119,15 +167,21 @@ export default async function EditTimesheetPage(props: PageProps<'/timesheets/[i
     );
   }
 
+  let materialHandlingJobs = mhJobsData ?? [];
+  if (
+    timesheet.mh_job_id &&
+    !materialHandlingJobs.some((m) => m.id === timesheet.mh_job_id)
+  ) {
+    const { data: currentMhJob } = await supabase
+      .from('material_handling_job')
+      .select('id, name')
+      .eq('id', timesheet.mh_job_id)
+      .maybeSingle();
+    if (currentMhJob) materialHandlingJobs = [...materialHandlingJobs, currentMhJob];
+  }
+
   const periods = periodsData ?? [];
   const timesheetTypes = timesheetTypesData ?? [];
-  const contractServices = contractServicesData ?? [];
-  const subcontractors = (subcontractorsData ?? []) as unknown as {
-    id: number;
-    company: { name: string } | null;
-  }[];
-  const jettyShips = jettyShipsData ?? [];
-  const materialHandlingJobs = mhJobsData ?? [];
 
   const { active } = timesheet;
   const updateTimesheetWithId = updateTimesheet.bind(null, timesheetId);

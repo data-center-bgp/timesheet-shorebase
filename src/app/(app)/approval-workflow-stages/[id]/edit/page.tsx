@@ -42,6 +42,7 @@ export default async function EditApprovalWorkflowStagePage(
   const { data: workflowsData, error: workflowsError } = await supabase
     .from('approval_workflow')
     .select('id, type_code')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (workflowsError) {
     return (
@@ -56,6 +57,7 @@ export default async function EditApprovalWorkflowStagePage(
   const { data: jobPositionsData, error: jobPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (jobPositionsError) {
     return (
@@ -70,6 +72,7 @@ export default async function EditApprovalWorkflowStagePage(
   const { data: userPositionsData, error: userPositionsError } = await supabase
     .from('user_position')
     .select('id, app_user(name, email), job_position(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (userPositionsError) {
     return (
@@ -81,13 +84,49 @@ export default async function EditApprovalWorkflowStagePage(
     );
   }
 
-  const workflows = workflowsData ?? [];
-  const jobPositions = jobPositionsData ?? [];
-  const userPositions = (userPositionsData ?? []) as unknown as {
+  let workflows = workflowsData ?? [];
+  let jobPositions = jobPositionsData ?? [];
+  let userPositions = (userPositionsData ?? []) as unknown as {
     id: number;
     app_user: { name: string | null; email: string | null } | null;
     job_position: { name: string } | null;
   }[];
+
+  if (stage.workflow_id && !workflows.some((w) => w.id === stage.workflow_id)) {
+    const { data: currentWorkflow } = await supabase
+      .from('approval_workflow')
+      .select('id, type_code')
+      .eq('id', stage.workflow_id)
+      .maybeSingle();
+    if (currentWorkflow) workflows = [...workflows, currentWorkflow];
+  }
+
+  if (stage.job_position_id && !jobPositions.some((jp) => jp.id === stage.job_position_id)) {
+    const { data: currentJobPosition } = await supabase
+      .from('job_position')
+      .select('id, name')
+      .eq('id', stage.job_position_id)
+      .maybeSingle();
+    if (currentJobPosition) jobPositions = [...jobPositions, currentJobPosition];
+  }
+
+  if (stage.user_position_id && !userPositions.some((up) => up.id === stage.user_position_id)) {
+    const { data: currentUserPosition } = await supabase
+      .from('user_position')
+      .select('id, app_user(name, email), job_position(name)')
+      .eq('id', stage.user_position_id)
+      .maybeSingle();
+    if (currentUserPosition) {
+      userPositions = [
+        ...userPositions,
+        currentUserPosition as unknown as {
+          id: number;
+          app_user: { name: string | null; email: string | null } | null;
+          job_position: { name: string } | null;
+        },
+      ];
+    }
+  }
 
   const { active } = stage;
   const updateApprovalWorkflowStageWithId = updateApprovalWorkflowStage.bind(null, stageId);

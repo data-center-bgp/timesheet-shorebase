@@ -9,6 +9,7 @@ export default async function NewActualActivityPage() {
     .from('activity')
     .select('id, code')
     .eq('status_code', 'P')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (planActivitiesError) {

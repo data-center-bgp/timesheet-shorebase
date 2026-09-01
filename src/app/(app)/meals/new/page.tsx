@@ -8,6 +8,7 @@ export default async function NewMealPage() {
   const { data: personsData, error: personsError } = await supabase
     .from('person')
     .select('id, name')
+    .eq('is_active', true)
     .order('name', { ascending: true });
 
   if (personsError) {
@@ -23,6 +24,7 @@ export default async function NewMealPage() {
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (contractServicesError) {

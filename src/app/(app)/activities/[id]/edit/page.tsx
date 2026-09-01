@@ -38,6 +38,7 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (contractServicesError) {
@@ -48,6 +49,19 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
         </p>
       </div>
     );
+  }
+
+  let contractServices = contractServicesData ?? [];
+  if (
+    activity.contract_service_id &&
+    !contractServices.some((c) => c.id === activity.contract_service_id)
+  ) {
+    const { data: currentContractService } = await supabase
+      .from('contract_service')
+      .select('id, code')
+      .eq('id', activity.contract_service_id)
+      .maybeSingle();
+    if (currentContractService) contractServices = [...contractServices, currentContractService];
   }
 
   const { data: timesheetTypesData, error: timesheetTypesError } = await supabase
@@ -68,6 +82,7 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
 
   if (subcontractorsError) {
@@ -80,12 +95,27 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
     );
   }
 
-  const contractServices = contractServicesData ?? [];
   const timesheetTypes = timesheetTypesData ?? [];
-  const subcontractors = (subcontractorsData ?? []) as unknown as {
+  let subcontractors = (subcontractorsData ?? []) as unknown as {
     id: number;
     company: { name: string } | null;
   }[];
+  if (
+    activity.subcontractor_id &&
+    !subcontractors.some((s) => s.id === activity.subcontractor_id)
+  ) {
+    const { data: currentSubcontractor } = await supabase
+      .from('subcontractors')
+      .select('id, company(name)')
+      .eq('id', activity.subcontractor_id)
+      .maybeSingle();
+    if (currentSubcontractor) {
+      subcontractors = [
+        ...subcontractors,
+        currentSubcontractor as unknown as { id: number; company: { name: string } | null },
+      ];
+    }
+  }
 
   const { active } = activity;
   const updatePlanActivityWithId = updatePlanActivity.bind(null, activityId);

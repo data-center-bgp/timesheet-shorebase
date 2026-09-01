@@ -42,6 +42,7 @@ export default async function EditMaterialHandlingEquipmentPage(
   const { data: jobsData, error: jobsError } = await supabase
     .from('material_handling_job')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobsError) {
@@ -54,9 +55,20 @@ export default async function EditMaterialHandlingEquipmentPage(
     );
   }
 
+  let jobs = jobsData ?? [];
+  if (record.job_id && !jobs.some((j) => j.id === record.job_id)) {
+    const { data: currentJob } = await supabase
+      .from('material_handling_job')
+      .select('id, name')
+      .eq('id', record.job_id)
+      .maybeSingle();
+    if (currentJob) jobs = [...jobs, currentJob];
+  }
+
   const { data: equipmentData, error: equipmentError } = await supabase
     .from('equipment')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (equipmentError) {
@@ -69,8 +81,15 @@ export default async function EditMaterialHandlingEquipmentPage(
     );
   }
 
-  const jobs = jobsData ?? [];
-  const equipmentOptions = equipmentData ?? [];
+  let equipmentOptions = equipmentData ?? [];
+  if (record.equipment_id && !equipmentOptions.some((e) => e.id === record.equipment_id)) {
+    const { data: currentEquipment } = await supabase
+      .from('equipment')
+      .select('id, name')
+      .eq('id', record.equipment_id)
+      .maybeSingle();
+    if (currentEquipment) equipmentOptions = [...equipmentOptions, currentEquipment];
+  }
 
   const { active } = record;
   const updateMaterialHandlingEquipmentWithId = updateMaterialHandlingEquipment.bind(null, recordId);

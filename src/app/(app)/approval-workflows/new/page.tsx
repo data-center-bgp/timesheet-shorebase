@@ -36,6 +36,7 @@ export default async function NewApprovalWorkflowPage() {
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_name')
+    .eq('active', true)
     .order('contract_name', { ascending: true });
   if (contractsError) {
     return (
@@ -50,6 +51,7 @@ export default async function NewApprovalWorkflowPage() {
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (subcontractorsError) {
     return (
@@ -64,6 +66,7 @@ export default async function NewApprovalWorkflowPage() {
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (companiesError) {
     return (

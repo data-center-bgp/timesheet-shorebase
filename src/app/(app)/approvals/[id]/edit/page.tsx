@@ -36,6 +36,7 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
   const { data: workflowStagesData, error: workflowStagesError } = await supabase
     .from('approval_workflow_stage')
     .select('id, workflow_id, level')
+    .eq('active', true)
     .order('workflow_id', { ascending: true })
     .order('level', { ascending: true });
   if (workflowStagesError) {
@@ -51,6 +52,7 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
   const { data: timesheetsData, error: timesheetsError } = await supabase
     .from('timesheet')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
   if (timesheetsError) {
     return (
@@ -93,6 +95,7 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
   const { data: userPositionsData, error: userPositionsError } = await supabase
     .from('user_position')
     .select('id, app_user(name, email), job_position(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (userPositionsError) {
     return (
@@ -104,15 +107,54 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
     );
   }
 
-  const workflowStages = workflowStagesData ?? [];
-  const timesheets = timesheetsData ?? [];
+  let workflowStages = workflowStagesData ?? [];
+  let timesheets = timesheetsData ?? [];
   const approvalStatuses = approvalStatusesData ?? [];
   const appUsers = appUsersData ?? [];
-  const userPositions = (userPositionsData ?? []) as unknown as {
+  let userPositions = (userPositionsData ?? []) as unknown as {
     id: number;
     app_user: { name: string | null; email: string | null } | null;
     job_position: { name: string } | null;
   }[];
+
+  if (approval.workflow_stage_id && !workflowStages.some((ws) => ws.id === approval.workflow_stage_id)) {
+    const { data: currentWorkflowStage } = await supabase
+      .from('approval_workflow_stage')
+      .select('id, workflow_id, level')
+      .eq('id', approval.workflow_stage_id)
+      .maybeSingle();
+    if (currentWorkflowStage) workflowStages = [...workflowStages, currentWorkflowStage];
+  }
+
+  if (approval.timesheet_id && !timesheets.some((t) => t.id === approval.timesheet_id)) {
+    const { data: currentTimesheet } = await supabase
+      .from('timesheet')
+      .select('id, code')
+      .eq('id', approval.timesheet_id)
+      .maybeSingle();
+    if (currentTimesheet) timesheets = [...timesheets, currentTimesheet];
+  }
+
+  if (
+    approval.approver_user_pos_id &&
+    !userPositions.some((up) => up.id === approval.approver_user_pos_id)
+  ) {
+    const { data: currentUserPosition } = await supabase
+      .from('user_position')
+      .select('id, app_user(name, email), job_position(name)')
+      .eq('id', approval.approver_user_pos_id)
+      .maybeSingle();
+    if (currentUserPosition) {
+      userPositions = [
+        ...userPositions,
+        currentUserPosition as unknown as {
+          id: number;
+          app_user: { name: string | null; email: string | null } | null;
+          job_position: { name: string } | null;
+        },
+      ];
+    }
+  }
 
   const { active } = approval;
   const updateApprovalWithId = updateApproval.bind(null, approvalId);

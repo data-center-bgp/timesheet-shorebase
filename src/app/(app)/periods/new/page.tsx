@@ -8,6 +8,7 @@ export default async function NewPeriodPage() {
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_number')
+    .eq('active', true)
     .order('contract_number', { ascending: true });
 
   if (contractsError) {

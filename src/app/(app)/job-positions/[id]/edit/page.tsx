@@ -35,6 +35,7 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {
@@ -47,9 +48,20 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
     );
   }
 
+  let companies = companiesData ?? [];
+  if (jobPosition.company_id && !companies.some((c) => c.id === jobPosition.company_id)) {
+    const { data: currentCompany } = await supabase
+      .from('company')
+      .select('id, name')
+      .eq('id', jobPosition.company_id)
+      .maybeSingle();
+    if (currentCompany) companies = [...companies, currentCompany];
+  }
+
   const { data: jobTitlesData, error: jobTitlesError } = await supabase
     .from('job_title')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobTitlesError) {
@@ -62,9 +74,20 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
     );
   }
 
+  let jobTitles = jobTitlesData ?? [];
+  if (jobPosition.job_title_id && !jobTitles.some((jt) => jt.id === jobPosition.job_title_id)) {
+    const { data: currentJobTitle } = await supabase
+      .from('job_title')
+      .select('id, name')
+      .eq('id', jobPosition.job_title_id)
+      .maybeSingle();
+    if (currentJobTitle) jobTitles = [...jobTitles, currentJobTitle];
+  }
+
   const { data: parentPositionsData, error: parentPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (parentPositionsError) {
@@ -77,14 +100,25 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
     );
   }
 
-  const companies = companiesData ?? [];
-  const jobTitles = jobTitlesData ?? [];
   // Exclude this position from its own "Parent position" dropdown — a
   // position can never be selected as its own parent. See actions.ts's
   // updateJobPosition for the server-side backstop of the same rule.
-  const parentPositionOptions = (parentPositionsData ?? []).filter(
+  let parentPositionOptions = (parentPositionsData ?? []).filter(
     (position) => position.id !== jobPositionId,
   );
+  if (
+    jobPosition.parent_position_id &&
+    !parentPositionOptions.some((position) => position.id === jobPosition.parent_position_id)
+  ) {
+    const { data: currentParentPosition } = await supabase
+      .from('job_position')
+      .select('id, name')
+      .eq('id', jobPosition.parent_position_id)
+      .maybeSingle();
+    if (currentParentPosition) {
+      parentPositionOptions = [...parentPositionOptions, currentParentPosition];
+    }
+  }
 
   const { active } = jobPosition;
   const updateJobPositionWithId = updateJobPosition.bind(null, jobPositionId);

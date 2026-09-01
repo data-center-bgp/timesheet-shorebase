@@ -35,6 +35,7 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
   const { data: personsData, error: personsError } = await supabase
     .from('person')
     .select('id, name')
+    .eq('is_active', true)
     .order('name', { ascending: true });
 
   if (personsError) {
@@ -47,9 +48,20 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
     );
   }
 
+  let persons = personsData ?? [];
+  if (meal.person_id && !persons.some((p) => p.id === meal.person_id)) {
+    const { data: currentPerson } = await supabase
+      .from('person')
+      .select('id, name')
+      .eq('id', meal.person_id)
+      .maybeSingle();
+    if (currentPerson) persons = [...persons, currentPerson];
+  }
+
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (contractServicesError) {
@@ -60,6 +72,19 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
         </p>
       </div>
     );
+  }
+
+  let contractServices = contractServicesData ?? [];
+  if (
+    meal.contract_service_id &&
+    !contractServices.some((cs) => cs.id === meal.contract_service_id)
+  ) {
+    const { data: currentContractService } = await supabase
+      .from('contract_service')
+      .select('id, code')
+      .eq('id', meal.contract_service_id)
+      .maybeSingle();
+    if (currentContractService) contractServices = [...contractServices, currentContractService];
   }
 
   const { data: mealTimesData, error: mealTimesError } = await supabase
@@ -77,8 +102,6 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
     );
   }
 
-  const persons = personsData ?? [];
-  const contractServices = contractServicesData ?? [];
   const mealTimes = mealTimesData ?? [];
 
   const { active } = meal;

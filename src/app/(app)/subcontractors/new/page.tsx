@@ -8,6 +8,7 @@ export default async function NewSubcontractorPage() {
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_number')
+    .eq('active', true)
     .order('contract_number', { ascending: true });
 
   if (contractsError) {
@@ -23,6 +24,7 @@ export default async function NewSubcontractorPage() {
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {

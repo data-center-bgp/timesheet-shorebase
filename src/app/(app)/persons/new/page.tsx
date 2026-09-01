@@ -8,6 +8,7 @@ export default async function NewPersonPage() {
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {

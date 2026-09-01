@@ -23,6 +23,7 @@ export default async function NewUserPositionPage() {
   const { data: jobPositionsData, error: jobPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobPositionsError) {

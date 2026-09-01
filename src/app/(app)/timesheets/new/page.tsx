@@ -36,6 +36,7 @@ export default async function NewTimesheetPage() {
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
     .select('id, code')
+    .eq('active', true)
     .order('code', { ascending: true });
   if (contractServicesError) {
     return (
@@ -50,6 +51,7 @@ export default async function NewTimesheetPage() {
   const { data: subcontractorsData, error: subcontractorsError } = await supabase
     .from('subcontractors')
     .select('id, company(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (subcontractorsError) {
     return (
@@ -64,6 +66,7 @@ export default async function NewTimesheetPage() {
   const { data: jettyShipsData, error: jettyShipsError } = await supabase
     .from('jetty_ship')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (jettyShipsError) {
     return (
@@ -78,6 +81,7 @@ export default async function NewTimesheetPage() {
   const { data: mhJobsData, error: mhJobsError } = await supabase
     .from('material_handling_job')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (mhJobsError) {
     return (

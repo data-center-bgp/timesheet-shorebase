@@ -8,6 +8,7 @@ export default async function NewContractServicePage() {
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_number')
+    .eq('active', true)
     .order('contract_number', { ascending: true });
 
   if (contractsError) {
@@ -23,6 +24,7 @@ export default async function NewContractServicePage() {
   const { data: servicesData, error: servicesError } = await supabase
     .from('shorebase_service')
     .select('id, code, name, default_uom_code')
+    .eq('active', true)
     .order('code', { ascending: true });
 
   if (servicesError) {

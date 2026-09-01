@@ -8,6 +8,7 @@ export default async function NewMaterialHandlingEquipmentPage() {
   const { data: jobsData, error: jobsError } = await supabase
     .from('material_handling_job')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobsError) {
@@ -23,6 +24,7 @@ export default async function NewMaterialHandlingEquipmentPage() {
   const { data: equipmentData, error: equipmentError } = await supabase
     .from('equipment')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (equipmentError) {

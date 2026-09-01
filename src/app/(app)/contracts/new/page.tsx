@@ -7,6 +7,7 @@ export default async function NewContractPage() {
   const { data, error } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (error) {

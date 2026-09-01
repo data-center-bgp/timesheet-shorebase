@@ -8,6 +8,7 @@ export default async function NewApprovalWorkflowStagePage() {
   const { data: workflowsData, error: workflowsError } = await supabase
     .from('approval_workflow')
     .select('id, type_code')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (workflowsError) {
     return (
@@ -22,6 +23,7 @@ export default async function NewApprovalWorkflowStagePage() {
   const { data: jobPositionsData, error: jobPositionsError } = await supabase
     .from('job_position')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (jobPositionsError) {
     return (
@@ -36,6 +38,7 @@ export default async function NewApprovalWorkflowStagePage() {
   const { data: userPositionsData, error: userPositionsError } = await supabase
     .from('user_position')
     .select('id, app_user(name, email), job_position(name)')
+    .eq('active', true)
     .order('id', { ascending: true });
   if (userPositionsError) {
     return (

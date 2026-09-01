@@ -35,6 +35,7 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {
@@ -47,7 +48,15 @@ export default async function EditContractPage(props: PageProps<'/contracts/[id]
     );
   }
 
-  const companies = companiesData ?? [];
+  let companies = companiesData ?? [];
+  if (contract.company_id && !companies.some((c) => c.id === contract.company_id)) {
+    const { data: currentCompany } = await supabase
+      .from('company')
+      .select('id, name')
+      .eq('id', contract.company_id)
+      .maybeSingle();
+    if (currentCompany) companies = [...companies, currentCompany];
+  }
 
   const { active } = contract;
   const updateContractWithId = updateContract.bind(null, contractId);

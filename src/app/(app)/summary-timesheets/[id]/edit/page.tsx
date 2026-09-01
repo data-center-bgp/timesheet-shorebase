@@ -68,6 +68,7 @@ export default async function EditSummaryTimesheetPage(props: PageProps<'/summar
   const { data: contractsData, error: contractsError } = await supabase
     .from('contract')
     .select('id, contract_name')
+    .eq('active', true)
     .order('contract_name', { ascending: true });
   if (contractsError) {
     return (
@@ -82,6 +83,7 @@ export default async function EditSummaryTimesheetPage(props: PageProps<'/summar
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
   if (companiesError) {
     return (
@@ -95,8 +97,26 @@ export default async function EditSummaryTimesheetPage(props: PageProps<'/summar
 
   const periods = periodsData ?? [];
   const timesheetTypes = timesheetTypesData ?? [];
-  const contracts = contractsData ?? [];
-  const companies = companiesData ?? [];
+  let contracts = contractsData ?? [];
+  let companies = companiesData ?? [];
+
+  if (summaryTimesheet.contract_id && !contracts.some((c) => c.id === summaryTimesheet.contract_id)) {
+    const { data: currentContract } = await supabase
+      .from('contract')
+      .select('id, contract_name')
+      .eq('id', summaryTimesheet.contract_id)
+      .maybeSingle();
+    if (currentContract) contracts = [...contracts, currentContract];
+  }
+
+  if (summaryTimesheet.company_id && !companies.some((c) => c.id === summaryTimesheet.company_id)) {
+    const { data: currentCompany } = await supabase
+      .from('company')
+      .select('id, name')
+      .eq('id', summaryTimesheet.company_id)
+      .maybeSingle();
+    if (currentCompany) companies = [...companies, currentCompany];
+  }
 
   const { active } = summaryTimesheet;
   const updateSummaryTimesheetWithId = updateSummaryTimesheet.bind(null, summaryTimesheetId);

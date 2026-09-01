@@ -35,6 +35,7 @@ export default async function EditPersonPage(props: PageProps<'/persons/[id]/edi
   const { data: companiesData, error: companiesError } = await supabase
     .from('company')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (companiesError) {
@@ -45,6 +46,16 @@ export default async function EditPersonPage(props: PageProps<'/persons/[id]/edi
         </p>
       </div>
     );
+  }
+
+  let companies = companiesData ?? [];
+  if (person.company_id && !companies.some((c) => c.id === person.company_id)) {
+    const { data: currentCompany } = await supabase
+      .from('company')
+      .select('id, name')
+      .eq('id', person.company_id)
+      .maybeSingle();
+    if (currentCompany) companies = [...companies, currentCompany];
   }
 
   const { data: staffTypesData, error: staffTypesError } = await supabase
@@ -62,7 +73,6 @@ export default async function EditPersonPage(props: PageProps<'/persons/[id]/edi
     );
   }
 
-  const companies = companiesData ?? [];
   const staffTypes = staffTypesData ?? [];
 
   const { is_active } = person;

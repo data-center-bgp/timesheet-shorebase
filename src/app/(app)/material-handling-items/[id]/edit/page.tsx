@@ -40,6 +40,7 @@ export default async function EditMaterialHandlingItemPage(props: PageProps<'/ma
   const { data: jobsData, error: jobsError } = await supabase
     .from('material_handling_job')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (jobsError) {
@@ -52,9 +53,20 @@ export default async function EditMaterialHandlingItemPage(props: PageProps<'/ma
     );
   }
 
+  let jobs = jobsData ?? [];
+  if (item.job_id && !jobs.some((j) => j.id === item.job_id)) {
+    const { data: currentJob } = await supabase
+      .from('material_handling_job')
+      .select('id, name')
+      .eq('id', item.job_id)
+      .maybeSingle();
+    if (currentJob) jobs = [...jobs, currentJob];
+  }
+
   const { data: productsData, error: productsError } = await supabase
     .from('product')
     .select('id, name')
+    .eq('active', true)
     .order('name', { ascending: true });
 
   if (productsError) {
@@ -65,6 +77,16 @@ export default async function EditMaterialHandlingItemPage(props: PageProps<'/ma
         </p>
       </div>
     );
+  }
+
+  let products = productsData ?? [];
+  if (item.product_id && !products.some((p) => p.id === item.product_id)) {
+    const { data: currentProduct } = await supabase
+      .from('product')
+      .select('id, name')
+      .eq('id', item.product_id)
+      .maybeSingle();
+    if (currentProduct) products = [...products, currentProduct];
   }
 
   const { data: uomsData, error: uomsError } = await supabase
@@ -82,8 +104,6 @@ export default async function EditMaterialHandlingItemPage(props: PageProps<'/ma
     );
   }
 
-  const jobs = jobsData ?? [];
-  const products = productsData ?? [];
   const uoms = uomsData ?? [];
 
   const { active } = item;
