@@ -8,13 +8,16 @@ type ContractServiceRow = {
   contract: { contract_number: string } | null;
   shorebase_service: { name: string } | null;
   uom: { name: string } | null;
+  contract_service_timesheet_group: { name: string } | null;
 };
 
 export default async function ContractServicesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract_service')
-    .select('id, code, active, contract(contract_number), shorebase_service(name), uom(name)')
+    .select(
+      'id, code, active, contract(contract_number), shorebase_service(name), uom(name), contract_service_timesheet_group(name)',
+    )
     .order('code', { ascending: true });
 
   const contractServices = (data ?? []) as unknown as ContractServiceRow[];
@@ -59,6 +62,7 @@ export default async function ContractServicesPage() {
                 <th className="px-4 py-2">Contract</th>
                 <th className="px-4 py-2">Service</th>
                 <th className="px-4 py-2">UoM</th>
+                <th className="px-4 py-2">Timesheet Group</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
@@ -80,6 +84,9 @@ export default async function ContractServicesPage() {
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {contractService.uom?.name ?? '—'}
+                    </td>
+                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                      {contractService.contract_service_timesheet_group?.name ?? '—'}
                     </td>
                     <td className="px-4 py-2">
                       <span

@@ -67,10 +67,27 @@ export default async function NewContractServicePage() {
     );
   }
 
+  const { data: timesheetGroupsData, error: timesheetGroupsError } = await supabase
+    .from('contract_service_timesheet_group')
+    .select('id, name')
+    .eq('active', true)
+    .order('name', { ascending: true });
+
+  if (timesheetGroupsError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load timesheet groups: {timesheetGroupsError.message}
+        </p>
+      </div>
+    );
+  }
+
   const contracts = contractsData ?? [];
   const services = servicesData ?? [];
   const uoms = uomsData ?? [];
   const sumCalcTypes = sumCalcTypesData ?? [];
+  const timesheetGroups = timesheetGroupsData ?? [];
 
   return (
     <div className="px-6 py-8">
@@ -85,6 +102,7 @@ export default async function NewContractServicePage() {
         services={services}
         uoms={uoms}
         sumCalcTypes={sumCalcTypes}
+        timesheetGroups={timesheetGroups}
         action={createContractService}
         submitLabel="Create contract service"
       />

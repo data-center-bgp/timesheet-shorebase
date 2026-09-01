@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 type JettyShipRow = {
   id: number;
+  type: string;
   name: string;
   active: boolean;
 };
@@ -11,7 +12,7 @@ export default async function JettyShipPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('jetty_ship')
-    .select('id, name, active')
+    .select('id, type, name, active')
     .order('name', { ascending: true });
 
   const jettyShips = (data ?? []) as unknown as JettyShipRow[];
@@ -53,6 +54,7 @@ export default async function JettyShipPage() {
             <thead className="border-b border-zinc-200 bg-zinc-50 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
               <tr>
                 <th className="px-4 py-2">Name</th>
+                <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
@@ -66,6 +68,7 @@ export default async function JettyShipPage() {
                         {item.name}
                       </Link>
                     </td>
+                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{item.type}</td>
                     <td className="px-4 py-2">
                       <span
                         className={

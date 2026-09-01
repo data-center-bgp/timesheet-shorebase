@@ -16,6 +16,7 @@ export type JobOption = {
 
 export type EquipmentOption = {
   id: number;
+  code: string;
   name: string;
 };
 
@@ -79,7 +80,7 @@ export function MaterialHandlingEquipmentForm({
           </option>
           {equipmentOptions.map((equipmentOption) => (
             <option key={equipmentOption.id} value={equipmentOption.id}>
-              {equipmentOption.name}
+              {equipmentOption.code} — {equipmentOption.name}
             </option>
           ))}
         </select>

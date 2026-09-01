@@ -5,6 +5,7 @@ import type { JettyShipFormState } from './actions';
 
 export type JettyShip = {
   id: number;
+  type: string;
   name: string;
 };
 
@@ -23,6 +24,20 @@ export function JettyShipForm({
 
   return (
     <form action={formAction} className="mt-6 max-w-md space-y-4">
+      <div className="space-y-1">
+        <label htmlFor="type" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Type
+        </label>
+        <input
+          id="type"
+          name="type"
+          type="text"
+          required
+          defaultValue={jettyShip?.type}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        />
+      </div>
+
       <div className="space-y-1">
         <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Name

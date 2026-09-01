@@ -67,7 +67,7 @@ export default async function EditMaterialHandlingEquipmentPage(
 
   const { data: equipmentData, error: equipmentError } = await supabase
     .from('equipment')
-    .select('id, name')
+    .select('id, code, name')
     .eq('active', true)
     .order('name', { ascending: true });
 
@@ -85,7 +85,7 @@ export default async function EditMaterialHandlingEquipmentPage(
   if (record.equipment_id && !equipmentOptions.some((e) => e.id === record.equipment_id)) {
     const { data: currentEquipment } = await supabase
       .from('equipment')
-      .select('id, name')
+      .select('id, code, name')
       .eq('id', record.equipment_id)
       .maybeSingle();
     if (currentEquipment) equipmentOptions = [...equipmentOptions, currentEquipment];

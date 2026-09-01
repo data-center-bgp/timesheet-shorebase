@@ -63,6 +63,12 @@ export async function createContractService(
 
   const timesheetSiteCode = (formData.get('timesheet_site_code') as string | null)?.trim() || null;
 
+  const timesheetGroupIdRaw = formData.get('timesheet_group_id') as string | null;
+  const timesheetGroupId = timesheetGroupIdRaw ? Number(timesheetGroupIdRaw) : null;
+  if (timesheetGroupId !== null && Number.isNaN(timesheetGroupId)) {
+    return { error: 'Invalid timesheet group.' };
+  }
+
   const supabase = await createClient();
   const companyId = await lookupCompanyIdForContract(supabase, contractId);
 
@@ -76,6 +82,7 @@ export async function createContractService(
     start_date: startDate,
     end_date: endDate,
     timesheet_site_code: timesheetSiteCode,
+    timesheet_group_id: timesheetGroupId,
   });
 
   if (error) {
@@ -130,6 +137,12 @@ export async function updateContractService(
 
   const timesheetSiteCode = (formData.get('timesheet_site_code') as string | null)?.trim() || null;
 
+  const timesheetGroupIdRaw = formData.get('timesheet_group_id') as string | null;
+  const timesheetGroupId = timesheetGroupIdRaw ? Number(timesheetGroupIdRaw) : null;
+  if (timesheetGroupId !== null && Number.isNaN(timesheetGroupId)) {
+    return { error: 'Invalid timesheet group.' };
+  }
+
   const supabase = await createClient();
   const companyId = await lookupCompanyIdForContract(supabase, contractId);
 
@@ -145,6 +158,7 @@ export async function updateContractService(
       start_date: startDate,
       end_date: endDate,
       timesheet_site_code: timesheetSiteCode,
+      timesheet_group_id: timesheetGroupId,
     })
     .eq('id', id);
 

@@ -14,7 +14,7 @@ export default async function EditJettyShipPage(props: PageProps<'/jetty-ships/[
   const supabase = await createClient();
   const { data: jettyShip, error } = await supabase
     .from('jetty_ship')
-    .select('id, name, active')
+    .select('id, type, name, active')
     .eq('id', jettyShipId)
     .maybeSingle();
 

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 type EquipmentRow = {
   id: number;
+  code: string;
   name: string;
   active: boolean;
 };
@@ -11,7 +12,7 @@ export default async function EquipmentPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('equipment')
-    .select('id, name, active')
+    .select('id, code, name, active')
     .order('name', { ascending: true });
 
   const equipment = (data ?? []) as unknown as EquipmentRow[];
@@ -52,6 +53,7 @@ export default async function EquipmentPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-zinc-200 bg-zinc-50 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
               <tr>
+                <th className="px-4 py-2">Code</th>
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
@@ -63,9 +65,10 @@ export default async function EquipmentPage() {
                   <tr key={item.id}>
                     <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
                       <Link href={`/equipment/${item.id}/edit`} className="hover:underline">
-                        {item.name}
+                        {item.code}
                       </Link>
                     </td>
+                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{item.name}</td>
                     <td className="px-4 py-2">
                       <span
                         className={

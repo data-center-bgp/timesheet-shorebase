@@ -15,7 +15,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
   const { data: contractService, error } = await supabase
     .from('contract_service')
     .select(
-      'id, code, contract_id, service_id, uom_code, summary_calculation_type, start_date, end_date, timesheet_site_code, active',
+      'id, code, contract_id, service_id, uom_code, summary_calculation_type, start_date, end_date, timesheet_site_code, timesheet_group_id, active',
     )
     .eq('id', contractServiceId)
     .maybeSingle();
@@ -122,8 +122,37 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
     if (currentService) services = [...services, currentService];
   }
 
+  const { data: timesheetGroupsData, error: timesheetGroupsError } = await supabase
+    .from('contract_service_timesheet_group')
+    .select('id, name')
+    .eq('active', true)
+    .order('name', { ascending: true });
+
+  if (timesheetGroupsError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load timesheet groups: {timesheetGroupsError.message}
+        </p>
+      </div>
+    );
+  }
+
   const uoms = uomsData ?? [];
   const sumCalcTypes = sumCalcTypesData ?? [];
+
+  let timesheetGroups = timesheetGroupsData ?? [];
+  if (
+    contractService.timesheet_group_id &&
+    !timesheetGroups.some((tg) => tg.id === contractService.timesheet_group_id)
+  ) {
+    const { data: currentTimesheetGroup } = await supabase
+      .from('contract_service_timesheet_group')
+      .select('id, name')
+      .eq('id', contractService.timesheet_group_id)
+      .maybeSingle();
+    if (currentTimesheetGroup) timesheetGroups = [...timesheetGroups, currentTimesheetGroup];
+  }
 
   const { active } = contractService;
   const updateContractServiceWithId = updateContractService.bind(null, contractServiceId);
@@ -154,6 +183,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
         services={services}
         uoms={uoms}
         sumCalcTypes={sumCalcTypes}
+        timesheetGroups={timesheetGroups}
         action={updateContractServiceWithId}
         submitLabel="Save changes"
       />

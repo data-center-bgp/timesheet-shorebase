@@ -13,6 +13,7 @@ export type ContractService = {
   start_date: string;
   end_date: string;
   timesheet_site_code: string | null;
+  timesheet_group_id: number | null;
 };
 
 export type ContractOption = {
@@ -37,6 +38,11 @@ export type SumCalcTypeOption = {
   name: string;
 };
 
+export type TimesheetGroupOption = {
+  id: number;
+  name: string;
+};
+
 const initialState: ContractServiceFormState = { error: null };
 
 export function ContractServiceForm({
@@ -45,6 +51,7 @@ export function ContractServiceForm({
   services,
   uoms,
   sumCalcTypes,
+  timesheetGroups,
   action,
   submitLabel,
 }: {
@@ -53,6 +60,7 @@ export function ContractServiceForm({
   services: ServiceOption[];
   uoms: UomOption[];
   sumCalcTypes: SumCalcTypeOption[];
+  timesheetGroups: TimesheetGroupOption[];
   action: (prevState: ContractServiceFormState, formData: FormData) => Promise<ContractServiceFormState>;
   submitLabel: string;
 }) {
@@ -212,6 +220,25 @@ export function ContractServiceForm({
           defaultValue={contractService?.timesheet_site_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="timesheet_group_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Timesheet group
+        </label>
+        <select
+          id="timesheet_group_id"
+          name="timesheet_group_id"
+          defaultValue={contractService?.timesheet_group_id ?? ''}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        >
+          <option value="">No timesheet group</option>
+          {timesheetGroups.map((timesheetGroup) => (
+            <option key={timesheetGroup.id} value={timesheetGroup.id}>
+              {timesheetGroup.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {state.error && (

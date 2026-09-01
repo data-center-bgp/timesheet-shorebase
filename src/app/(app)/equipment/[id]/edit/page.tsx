@@ -14,7 +14,7 @@ export default async function EditEquipmentPage(props: PageProps<'/equipment/[id
   const supabase = await createClient();
   const { data: equipment, error } = await supabase
     .from('equipment')
-    .select('id, name, active')
+    .select('id, code, name, active')
     .eq('id', equipmentId)
     .maybeSingle();
 

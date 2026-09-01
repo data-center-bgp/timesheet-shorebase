@@ -12,13 +12,18 @@ export async function createEquipment(
   _prevState: EquipmentFormState,
   formData: FormData,
 ): Promise<EquipmentFormState> {
+  const code = (formData.get('code') as string | null)?.trim();
+  if (!code) {
+    return { error: 'Code is required.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from('equipment').insert({ name });
+  const { error } = await supabase.from('equipment').insert({ code, name });
 
   if (error) {
     return { error: error.message };
@@ -33,13 +38,18 @@ export async function updateEquipment(
   _prevState: EquipmentFormState,
   formData: FormData,
 ): Promise<EquipmentFormState> {
+  const code = (formData.get('code') as string | null)?.trim();
+  if (!code) {
+    return { error: 'Code is required.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from('equipment').update({ name }).eq('id', id);
+  const { error } = await supabase.from('equipment').update({ code, name }).eq('id', id);
 
   if (error) {
     return { error: error.message };

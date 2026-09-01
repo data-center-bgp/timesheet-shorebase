@@ -12,13 +12,18 @@ export async function createJettyShip(
   _prevState: JettyShipFormState,
   formData: FormData,
 ): Promise<JettyShipFormState> {
+  const type = (formData.get('type') as string | null)?.trim();
+  if (!type) {
+    return { error: 'Type is required.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from('jetty_ship').insert({ name });
+  const { error } = await supabase.from('jetty_ship').insert({ type, name });
 
   if (error) {
     return { error: error.message };
@@ -33,13 +38,18 @@ export async function updateJettyShip(
   _prevState: JettyShipFormState,
   formData: FormData,
 ): Promise<JettyShipFormState> {
+  const type = (formData.get('type') as string | null)?.trim();
+  if (!type) {
+    return { error: 'Type is required.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from('jetty_ship').update({ name }).eq('id', id);
+  const { error } = await supabase.from('jetty_ship').update({ type, name }).eq('id', id);
 
   if (error) {
     return { error: error.message };

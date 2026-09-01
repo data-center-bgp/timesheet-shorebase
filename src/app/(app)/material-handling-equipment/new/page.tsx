@@ -23,7 +23,7 @@ export default async function NewMaterialHandlingEquipmentPage() {
 
   const { data: equipmentData, error: equipmentError } = await supabase
     .from('equipment')
-    .select('id, name')
+    .select('id, code, name')
     .eq('active', true)
     .order('name', { ascending: true });
 
