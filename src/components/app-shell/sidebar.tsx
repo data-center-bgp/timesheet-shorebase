@@ -42,8 +42,9 @@ function ItemRow({
   );
 }
 
-export function Sidebar({ collapsed }: { collapsed: boolean }) {
+export function Sidebar({ collapsed, isMaster }: { collapsed: boolean; isMaster: boolean }) {
   const pathname = usePathname();
+  const visibleGroups = NAV_GROUPS.filter((group) => !group.masterOnly || isMaster);
 
   return (
     <nav
@@ -63,7 +64,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       </div>
 
       <div className="space-y-5 px-2 py-3">
-        {NAV_GROUPS.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.label}>
             {collapsed ? (
               <div

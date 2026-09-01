@@ -23,6 +23,13 @@ export default async function AppLayout({
 
   const email = user.email;
 
+  const { data: appUser } = await supabase
+    .from('app_user')
+    .select('role_code')
+    .eq('id', user.id)
+    .maybeSingle();
+  const isMaster = appUser?.role_code === 'master';
+
   const cookieStore = await cookies();
   const collapsed = cookieStore.get(SIDEBAR_COOKIE)?.value === 'true';
   // Matches what the root layout put on <html>. When no cookie is set the
@@ -36,6 +43,7 @@ export default async function AppLayout({
       initialCollapsed={collapsed}
       signOut={signOut}
       serverTheme={serverTheme}
+      isMaster={isMaster}
     >
       {children}
     </AppShell>

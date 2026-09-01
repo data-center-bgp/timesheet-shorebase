@@ -45,6 +45,8 @@ export type NavGroup = {
   /** Shown as a tracked mono uppercase label above the group. */
   label: string;
   items: NavItem[];
+  /** Hidden entirely from the sidebar unless the current user is role 'master'. */
+  masterOnly?: boolean;
 };
 
 export const NAV_GROUPS: NavGroup[] = [
@@ -93,13 +95,17 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Meals', icon: UtensilsCrossed, href: '/meals' },
       { label: 'Job Titles', icon: Tag, href: '/job-titles' },
       { label: 'Job Positions', icon: Network, href: '/job-positions' },
-      { label: 'Users', icon: UserCog, href: '/users' },
       { label: 'User Positions', icon: UserCheck, href: '/user-positions' },
     ],
   },
   {
     label: 'Settings',
     items: [{ label: 'Reference Data', icon: Settings2, href: '/reference-data' }],
+  },
+  {
+    label: 'Administration',
+    masterOnly: true,
+    items: [{ label: 'Users', icon: UserCog, href: '/users' }],
   },
 ];
 

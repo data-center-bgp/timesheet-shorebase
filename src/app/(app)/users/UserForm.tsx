@@ -23,7 +23,7 @@ export function UserForm({
   action,
   submitLabel,
 }: {
-  user: AppUser;
+  user?: AppUser;
   roles: RoleOption[];
   action: (prevState: UserFormState, formData: FormData) => Promise<UserFormState>;
   submitLabel: string;
@@ -32,6 +32,37 @@ export function UserForm({
 
   return (
     <form action={formAction} className="mt-6 max-w-md space-y-4">
+      {!user && (
+        <>
+          <div className="space-y-1">
+            <label htmlFor="email" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            />
+          </div>
+        </>
+      )}
+
       <div className="space-y-1">
         <label htmlFor="name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Name
@@ -41,7 +72,7 @@ export function UserForm({
           name="name"
           type="text"
           required
-          defaultValue={user.name ?? ''}
+          defaultValue={user?.name ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -54,7 +85,7 @@ export function UserForm({
           id="username"
           name="username"
           type="text"
-          defaultValue={user.username ?? ''}
+          defaultValue={user?.username ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -67,9 +98,14 @@ export function UserForm({
           id="role_code"
           name="role_code"
           required
-          defaultValue={user.role_code}
+          defaultValue={user?.role_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
+          {!user && (
+            <option value="" disabled>
+              Select a role
+            </option>
+          )}
           {roles.map((role) => (
             <option key={role.code} value={role.code}>
               {role.name}
@@ -77,6 +113,22 @@ export function UserForm({
           ))}
         </select>
       </div>
+
+      {user && (
+        <div className="space-y-1">
+          <label htmlFor="new_password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            New password
+          </label>
+          <input
+            id="new_password"
+            name="new_password"
+            type="password"
+            minLength={8}
+            placeholder="Leave blank to keep the current password"
+            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          />
+        </div>
+      )}
 
       {state.error && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">

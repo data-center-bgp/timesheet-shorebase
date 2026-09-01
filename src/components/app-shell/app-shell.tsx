@@ -12,6 +12,7 @@ export function AppShell({
   initialCollapsed,
   signOut,
   serverTheme,
+  isMaster,
 }: {
   children: ReactNode;
   email: string | undefined;
@@ -19,6 +20,7 @@ export function AppShell({
   initialCollapsed: boolean;
   signOut: () => Promise<void>;
   serverTheme: Theme;
+  isMaster: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
 
@@ -46,7 +48,7 @@ export function AppShell({
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-black">
-      <Sidebar collapsed={collapsed} />
+      <Sidebar collapsed={collapsed} isMaster={isMaster} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           email={email}
