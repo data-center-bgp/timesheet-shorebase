@@ -2,7 +2,6 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireMasterRole } from '@/lib/auth/require-master';
 
@@ -50,13 +49,16 @@ export async function createUser(
     return { error: createError?.message ?? 'Could not create the account.' };
   }
 
-  const supabase = await createClient();
-  const { error: updateError } = await supabase
+  const { error: updateError } = await adminClient
     .from('app_user')
     .update({ username, role_code: roleCode })
     .eq('id', created.user.id);
 
   if (updateError) {
+    // The Auth account already exists at this point - don't leave a stray,
+    // misconfigured (default-role) login behind if we can't finish setting
+    // it up the way the admin asked.
+    await adminClient.auth.admin.deleteUser(created.user.id);
     return { error: updateError.message };
   }
 
@@ -92,8 +94,9 @@ export async function updateUser(
     return { error: 'New password must be at least 8 characters.' };
   }
 
+  const adminClient = createAdminClient();
+
   if (newPassword) {
-    const adminClient = createAdminClient();
     const { error: passwordError } = await adminClient.auth.admin.updateUserById(id, {
       password: newPassword,
     });
@@ -102,8 +105,7 @@ export async function updateUser(
     }
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase
+  const { error } = await adminClient
     .from('app_user')
     .update({ name, username, role_code: roleCode })
     .eq('id', id);

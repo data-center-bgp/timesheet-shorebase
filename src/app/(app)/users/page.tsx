@@ -28,7 +28,10 @@ export default async function UsersPage() {
   const users = (data ?? []) as unknown as AppUserRow[];
 
   const adminClient = createAdminClient();
-  const { data: authData } = await adminClient.auth.admin.listUsers();
+  // Explicit perPage - GoTrue defaults to ~50 per page, which would
+  // silently drop later users out of the ban-status check (and they'd
+  // wrongly render as "Active") once the account count grows past that.
+  const { data: authData } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
   const bannedIds = new Set(
     (authData?.users ?? [])
       .filter((authUser) => isCurrentlyBanned(authUser.banned_until))
