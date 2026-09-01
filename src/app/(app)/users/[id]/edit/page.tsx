@@ -3,8 +3,14 @@ import { createClient } from '@/lib/supabase/server';
 import { UserForm, type AppUser } from '../../UserForm';
 import { updateUser } from '../../actions';
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default async function EditUserPage(props: PageProps<'/users/[id]/edit'>) {
   const { id } = await props.params;
+
+  if (!UUID_PATTERN.test(id)) {
+    notFound();
+  }
 
   const supabase = await createClient();
   const { data: user, error } = await supabase

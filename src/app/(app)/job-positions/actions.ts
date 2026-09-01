@@ -89,6 +89,26 @@ export async function updateJobPosition(
     return { error: 'A position cannot be its own parent.' };
   }
 
+  if (parentPositionId !== null) {
+    const supabaseForCycleCheck = await createClient();
+    let ancestorId: number | null = parentPositionId;
+    const visited = new Set<number>();
+    while (ancestorId !== null) {
+      if (ancestorId === id) {
+        return { error: 'That would make this position an ancestor of its own parent (a cycle).' };
+      }
+      if (visited.has(ancestorId)) break;
+      visited.add(ancestorId);
+      const { data: ancestor }: { data: { parent_position_id: number | null } | null } = await supabaseForCycleCheck
+        .from('job_position')
+        .select('parent_position_id')
+        .eq('id', ancestorId)
+        .maybeSingle();
+      const nextAncestorId: number | null = ancestor?.parent_position_id ?? null;
+      ancestorId = nextAncestorId;
+    }
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };

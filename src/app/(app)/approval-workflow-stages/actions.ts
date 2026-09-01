@@ -44,6 +44,10 @@ function readStageFields(formData: FormData): ReadStageFieldsResult {
     return { error: 'Invalid job position or user position.' };
   }
 
+  if (jobPositionId === null && userPositionId === null) {
+    return { error: 'A stage needs at least a job position or a user position as its approver.' };
+  }
+
   return {
     values: {
       workflow_id: workflowId,
