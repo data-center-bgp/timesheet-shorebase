@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { DashboardBarChart, type BarDatum } from './DashboardBarChart';
 
 type StatCard = {
   label: string;
@@ -108,11 +107,6 @@ export default async function Home() {
     },
   ];
 
-  const barData: BarDatum[] = sections
-    .flatMap((section) => section.cards)
-    .map((card) => ({ label: card.label, href: card.href, count: card.count ?? 0 }))
-    .sort((a, b) => b.count - a.count);
-
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
@@ -125,13 +119,6 @@ export default async function Home() {
         Active-record counts across every built section. Zero counts are expected wherever no real
         data has been entered yet.
       </p>
-
-      <div className="mt-8 max-w-2xl rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="mb-3 font-mono text-xs font-medium tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
-          ALL SECTIONS, ONE SCALE
-        </p>
-        <DashboardBarChart data={barData} />
-      </div>
 
       <div className="mt-8 space-y-8">
         {sections.map((section) => (
