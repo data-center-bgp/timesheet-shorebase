@@ -6,6 +6,8 @@ import {
   ClipboardCheck,
   ClipboardList,
   Container,
+  FileClock,
+  FileDigit,
   FileSignature,
   FileStack,
   HardHat,
@@ -69,7 +71,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Workflow Stages', icon: ListOrdered, href: '/approval-workflow-stages' },
       { label: 'Approvals', icon: Stamp, href: '/approvals' },
       { label: 'Summary Timesheets', icon: FileStack, href: '/summary-timesheets' },
+      { label: 'Proforma Invoices', icon: FileClock, href: '/proforma-invoices' },
       { label: 'Invoices', icon: Receipt, href: '/invoices' },
+      { label: 'Invoice Components', icon: FileDigit, href: '/invoice-components' },
     ],
   },
   {
