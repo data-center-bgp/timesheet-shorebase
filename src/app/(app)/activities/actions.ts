@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type PlanActivityFormState = {
   error: string | null;
@@ -28,6 +29,10 @@ export async function createPlanActivity(
   _prevState: PlanActivityFormState,
   formData: FormData,
 ): Promise<PlanActivityFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -98,6 +103,10 @@ export async function updatePlanActivity(
   _prevState: PlanActivityFormState,
   formData: FormData,
 ): Promise<PlanActivityFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -166,6 +175,10 @@ export async function updatePlanActivity(
 }
 
 export async function deactivateActivity(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('activity')
@@ -185,6 +198,10 @@ export async function deactivateActivity(id: number) {
 }
 
 export async function reactivateActivity(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('activity')

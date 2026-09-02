@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { JobPositionForm } from '../JobPositionForm';
 import { createJobPosition } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewJobPositionPage() {
+  if (await isManagerRole()) {
+    redirect('/job-positions');
+  }
+
   const supabase = await createClient();
 
   const { data: companiesData, error: companiesError } = await supabase

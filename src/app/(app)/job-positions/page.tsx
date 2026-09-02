@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type JobPositionRow = {
   id: number;
@@ -10,6 +11,7 @@ type JobPositionRow = {
 };
 
 export default async function JobPositionsPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('job_position')
@@ -29,12 +31,14 @@ export default async function JobPositionsPage() {
             Job Positions
           </h2>
         </div>
-        <Link
-          href="/job-positions/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add job position
-        </Link>
+        {!isManager && (
+          <Link
+            href="/job-positions/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add job position
+          </Link>
+        )}
       </div>
 
       {error && (

@@ -46,12 +46,14 @@ export function MaterialHandlingJobForm({
   subcontractors,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   job?: MaterialHandlingJob;
   contractServices: ContractServiceOption[];
   subcontractors: SubcontractorOption[];
   action: (prevState: MaterialHandlingJobFormState, formData: FormData) => Promise<MaterialHandlingJobFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -65,6 +67,7 @@ export function MaterialHandlingJobForm({
           id="contract_service_id"
           name="contract_service_id"
           required
+          disabled={readOnly}
           defaultValue={job?.contract_service_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -87,6 +90,7 @@ export function MaterialHandlingJobForm({
           id="sub_contractor_id"
           name="sub_contractor_id"
           required
+          disabled={readOnly}
           defaultValue={job?.sub_contractor_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -110,6 +114,7 @@ export function MaterialHandlingJobForm({
           name="name"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={job?.name}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -124,6 +129,7 @@ export function MaterialHandlingJobForm({
           name="job_date"
           type="date"
           required
+          disabled={readOnly}
           defaultValue={job?.job_date}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -137,6 +143,7 @@ export function MaterialHandlingJobForm({
           id="job_start"
           name="job_start"
           type="datetime-local"
+          disabled={readOnly}
           defaultValue={toDatetimeLocalValue(job?.job_start ?? null)}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -150,6 +157,7 @@ export function MaterialHandlingJobForm({
           id="job_finish"
           name="job_finish"
           type="datetime-local"
+          disabled={readOnly}
           defaultValue={toDatetimeLocalValue(job?.job_finish ?? null)}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -161,13 +169,17 @@ export function MaterialHandlingJobForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type PersonMealFormState = {
   error: string | null;
@@ -27,6 +28,10 @@ export async function createPersonMeal(
   _prevState: PersonMealFormState,
   formData: FormData,
 ): Promise<PersonMealFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const personIdRaw = formData.get('person_id') as string | null;
   const personId = personIdRaw ? Number(personIdRaw) : NaN;
   if (!personIdRaw || Number.isNaN(personId)) {
@@ -81,6 +86,10 @@ export async function updatePersonMeal(
   _prevState: PersonMealFormState,
   formData: FormData,
 ): Promise<PersonMealFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const personIdRaw = formData.get('person_id') as string | null;
   const personId = personIdRaw ? Number(personIdRaw) : NaN;
   if (!personIdRaw || Number.isNaN(personId)) {
@@ -134,6 +143,10 @@ export async function updatePersonMeal(
 }
 
 export async function deactivatePersonMeal(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_meal')
@@ -153,6 +166,10 @@ export async function deactivatePersonMeal(id: number) {
 }
 
 export async function reactivatePersonMeal(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_meal')

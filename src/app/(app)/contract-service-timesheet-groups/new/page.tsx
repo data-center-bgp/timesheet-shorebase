@@ -1,7 +1,13 @@
+import { redirect } from 'next/navigation';
 import { ContractServiceTimesheetGroupForm } from '../ContractServiceTimesheetGroupForm';
 import { createContractServiceTimesheetGroup } from '../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
-export default function NewContractServiceTimesheetGroupPage() {
+export default async function NewContractServiceTimesheetGroupPage() {
+  if (await isManagerRole()) {
+    redirect('/contract-service-timesheet-groups');
+  }
+
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">

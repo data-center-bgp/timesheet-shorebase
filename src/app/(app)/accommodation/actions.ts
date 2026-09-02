@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type PersonAccomodationFormState = {
   error: string | null;
@@ -27,6 +28,10 @@ export async function createPersonAccomodation(
   _prevState: PersonAccomodationFormState,
   formData: FormData,
 ): Promise<PersonAccomodationFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const personIdRaw = formData.get('person_id') as string | null;
   const personId = personIdRaw ? Number(personIdRaw) : NaN;
   if (!personIdRaw || Number.isNaN(personId)) {
@@ -87,6 +92,10 @@ export async function updatePersonAccomodation(
   _prevState: PersonAccomodationFormState,
   formData: FormData,
 ): Promise<PersonAccomodationFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const personIdRaw = formData.get('person_id') as string | null;
   const personId = personIdRaw ? Number(personIdRaw) : NaN;
   if (!personIdRaw || Number.isNaN(personId)) {
@@ -146,6 +155,10 @@ export async function updatePersonAccomodation(
 }
 
 export async function deactivatePersonAccomodation(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_accomodation')
@@ -165,6 +178,10 @@ export async function deactivatePersonAccomodation(id: number) {
 }
 
 export async function reactivatePersonAccomodation(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_accomodation')

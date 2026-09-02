@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { PeriodForm } from '../PeriodForm';
 import { createPeriod } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewPeriodPage() {
+  if (await isManagerRole()) {
+    redirect('/periods');
+  }
+
   const supabase = await createClient();
 
   const { data: contractsData, error: contractsError } = await supabase

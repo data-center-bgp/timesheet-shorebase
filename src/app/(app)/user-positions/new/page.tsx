@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { UserPositionForm } from '../UserPositionForm';
 import { createUserPosition } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewUserPositionPage() {
+  if (await isManagerRole()) {
+    redirect('/user-positions');
+  }
+
   const supabase = await createClient();
 
   const { data: usersData, error: usersError } = await supabase

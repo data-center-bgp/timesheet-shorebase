@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type TimesheetRow = {
   id: number;
@@ -12,6 +13,7 @@ type TimesheetRow = {
 };
 
 export default async function TimesheetsPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('timesheet')
@@ -31,12 +33,14 @@ export default async function TimesheetsPage() {
             Timesheets
           </h2>
         </div>
-        <Link
-          href="/timesheets/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add timesheet
-        </Link>
+        {!isManager && (
+          <Link
+            href="/timesheets/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add timesheet
+          </Link>
+        )}
       </div>
 
       {error && (

@@ -33,12 +33,14 @@ export function ServiceForm({
   uoms,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   service?: Service;
   serviceTypes: ServiceTypeOption[];
   uoms: UomOption[];
   action: (prevState: ServiceFormState, formData: FormData) => Promise<ServiceFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -53,6 +55,7 @@ export function ServiceForm({
           name="code"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={service?.code}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -67,6 +70,7 @@ export function ServiceForm({
           name="name"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={service?.name}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -80,6 +84,7 @@ export function ServiceForm({
           id="service_type_code"
           name="service_type_code"
           required
+          disabled={readOnly}
           defaultValue={service?.service_type_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -102,6 +107,7 @@ export function ServiceForm({
           id="default_uom_code"
           name="default_uom_code"
           required
+          disabled={readOnly}
           defaultValue={service?.default_uom_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -127,6 +133,7 @@ export function ServiceForm({
           step="0.0001"
           min="0"
           required
+          disabled={readOnly}
           defaultValue={service?.default_price_per_uom}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -141,6 +148,7 @@ export function ServiceForm({
             id="start_date"
             name="start_date"
             type="date"
+            disabled={readOnly}
             defaultValue={service?.start_date ?? ''}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -153,6 +161,7 @@ export function ServiceForm({
             id="end_date"
             name="end_date"
             type="date"
+            disabled={readOnly}
             defaultValue={service?.end_date ?? ''}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -167,6 +176,7 @@ export function ServiceForm({
           id="description"
           name="description"
           rows={3}
+          disabled={readOnly}
           defaultValue={service?.description ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -178,13 +188,17 @@ export function ServiceForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

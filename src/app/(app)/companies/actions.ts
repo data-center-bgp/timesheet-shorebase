@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type CompanyFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createCompany(
   _prevState: CompanyFormState,
   formData: FormData,
 ): Promise<CompanyFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
@@ -42,6 +47,10 @@ export async function updateCompany(
   _prevState: CompanyFormState,
   formData: FormData,
 ): Promise<CompanyFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
@@ -66,6 +75,10 @@ export async function updateCompany(
 }
 
 export async function deactivateCompany(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('company')
@@ -85,6 +98,10 @@ export async function deactivateCompany(id: number) {
 }
 
 export async function reactivateCompany(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('company')

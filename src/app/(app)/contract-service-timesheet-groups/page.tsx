@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type ContractServiceTimesheetGroupRow = {
   id: number;
@@ -8,6 +9,7 @@ type ContractServiceTimesheetGroupRow = {
 };
 
 export default async function ContractServiceTimesheetGroupPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract_service_timesheet_group')
@@ -27,12 +29,14 @@ export default async function ContractServiceTimesheetGroupPage() {
             Contract Service Groups
           </h2>
         </div>
-        <Link
-          href="/contract-service-timesheet-groups/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add contract service group
-        </Link>
+        {!isManager && (
+          <Link
+            href="/contract-service-timesheet-groups/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add contract service group
+          </Link>
+        )}
       </div>
 
       {error && (

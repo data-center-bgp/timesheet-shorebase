@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type CompanyRow = {
   id: number;
@@ -11,6 +12,7 @@ type CompanyRow = {
 };
 
 export default async function CompaniesPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('company')
@@ -30,12 +32,14 @@ export default async function CompaniesPage() {
             Companies
           </h2>
         </div>
-        <Link
-          href="/companies/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add company
-        </Link>
+        {!isManager && (
+          <Link
+            href="/companies/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add company
+          </Link>
+        )}
       </div>
 
       {error && (

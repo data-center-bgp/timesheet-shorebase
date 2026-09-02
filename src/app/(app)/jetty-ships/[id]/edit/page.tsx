@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { JettyShipForm, type JettyShip } from '../../JettyShipForm';
 import { updateJettyShip, deactivateJettyShip, reactivateJettyShip } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditJettyShipPage(props: PageProps<'/jetty-ships/[id]/edit'>) {
   const { id } = await props.params;
@@ -11,6 +12,7 @@ export default async function EditJettyShipPage(props: PageProps<'/jetty-ships/[
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data: jettyShip, error } = await supabase
     .from('jetty_ship')
@@ -46,16 +48,23 @@ export default async function EditJettyShipPage(props: PageProps<'/jetty-ships/[
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit jetty/ship
         </h2>
-        <form action={active ? deactivateJettyShipWithId : reactivateJettyShipWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateJettyShipWithId : reactivateJettyShipWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
-      <JettyShipForm jettyShip={jettyShip as JettyShip} action={updateJettyShipWithId} submitLabel="Save changes" />
+      <JettyShipForm
+        jettyShip={jettyShip as JettyShip}
+        action={updateJettyShipWithId}
+        submitLabel="Save changes"
+        readOnly={isManager}
+      />
     </div>
   );
 }

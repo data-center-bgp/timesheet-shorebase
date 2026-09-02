@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { TimesheetForm } from '../TimesheetForm';
 import { createTimesheet } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewTimesheetPage() {
+  if (await isManagerRole()) {
+    redirect('/timesheets');
+  }
+
   const supabase = await createClient();
 
   const { data: periodsData, error: periodsError } = await supabase

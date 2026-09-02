@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type ApprovalFormState = {
   error: string | null;
@@ -60,6 +61,10 @@ export async function createApproval(
   _prevState: ApprovalFormState,
   formData: FormData,
 ): Promise<ApprovalFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readApprovalFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -81,6 +86,10 @@ export async function updateApproval(
   _prevState: ApprovalFormState,
   formData: FormData,
 ): Promise<ApprovalFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readApprovalFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -101,6 +110,10 @@ export async function updateApproval(
 }
 
 export async function deactivateApproval(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.from('approval').update({ active: false }).eq('id', id).select('id');
 
@@ -116,6 +129,10 @@ export async function deactivateApproval(id: number) {
 }
 
 export async function reactivateApproval(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.from('approval').update({ active: true }).eq('id', id).select('id');
 

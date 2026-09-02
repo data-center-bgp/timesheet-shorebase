@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type PeriodFormState = {
   error: string | null;
@@ -24,6 +25,10 @@ export async function createPeriod(
   _prevState: PeriodFormState,
   formData: FormData,
 ): Promise<PeriodFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractIdRaw = formData.get('contract_id') as string | null;
   const contractId = contractIdRaw ? Number(contractIdRaw) : NaN;
   if (!contractIdRaw || Number.isNaN(contractId)) {
@@ -69,6 +74,10 @@ export async function updatePeriod(
   _prevState: PeriodFormState,
   formData: FormData,
 ): Promise<PeriodFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractIdRaw = formData.get('contract_id') as string | null;
   const contractId = contractIdRaw ? Number(contractIdRaw) : NaN;
   if (!contractIdRaw || Number.isNaN(contractId)) {
@@ -113,6 +122,10 @@ export async function updatePeriod(
 }
 
 export async function lockPeriod(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('period')
@@ -132,6 +145,10 @@ export async function lockPeriod(id: number) {
 }
 
 export async function unlockPeriod(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('period')

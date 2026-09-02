@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type UserPositionFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createUserPosition(
   _prevState: UserPositionFormState,
   formData: FormData,
 ): Promise<UserPositionFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const userId = (formData.get('user_id') as string | null)?.trim();
   if (!userId) {
     return { error: 'User is required.' };
@@ -55,6 +60,10 @@ export async function updateUserPosition(
   _prevState: UserPositionFormState,
   formData: FormData,
 ): Promise<UserPositionFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const userId = (formData.get('user_id') as string | null)?.trim();
   if (!userId) {
     return { error: 'User is required.' };
@@ -97,6 +106,10 @@ export async function updateUserPosition(
 }
 
 export async function deactivateUserPosition(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('user_position')
@@ -116,6 +129,10 @@ export async function deactivateUserPosition(id: number) {
 }
 
 export async function reactivateUserPosition(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('user_position')

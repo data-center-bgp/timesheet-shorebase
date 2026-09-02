@@ -39,6 +39,7 @@ export function PlanActivityForm({
   subcontractors,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   activity?: PlanActivity;
   contractServices: ContractServiceOption[];
@@ -46,6 +47,7 @@ export function PlanActivityForm({
   subcontractors: SubcontractorOption[];
   action: (prevState: PlanActivityFormState, formData: FormData) => Promise<PlanActivityFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -60,6 +62,7 @@ export function PlanActivityForm({
           name="code"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={activity?.code}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -73,6 +76,7 @@ export function PlanActivityForm({
           id="contract_service_id"
           name="contract_service_id"
           required
+          disabled={readOnly}
           defaultValue={activity?.contract_service_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -95,6 +99,7 @@ export function PlanActivityForm({
           id="timesheet_type_code"
           name="timesheet_type_code"
           required
+          disabled={readOnly}
           defaultValue={activity?.timesheet_type_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -116,6 +121,7 @@ export function PlanActivityForm({
         <select
           id="subcontractor_id"
           name="subcontractor_id"
+          disabled={readOnly}
           defaultValue={activity?.subcontractor_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -139,6 +145,7 @@ export function PlanActivityForm({
           step="any"
           min="0"
           required
+          disabled={readOnly}
           defaultValue={activity?.plan_amount}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -153,6 +160,7 @@ export function PlanActivityForm({
           name="plan_date"
           type="date"
           required
+          disabled={readOnly}
           defaultValue={activity?.plan_date}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -166,6 +174,7 @@ export function PlanActivityForm({
           id="plan_description"
           name="plan_description"
           type="text"
+          disabled={readOnly}
           defaultValue={activity?.plan_description ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -179,6 +188,7 @@ export function PlanActivityForm({
           id="plan_remark"
           name="plan_remark"
           rows={3}
+          disabled={readOnly}
           defaultValue={activity?.plan_remark ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -190,13 +200,17 @@ export function PlanActivityForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

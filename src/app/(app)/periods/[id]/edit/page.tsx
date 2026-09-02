@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { PeriodForm, type Period } from '../../PeriodForm';
 import { updatePeriod, lockPeriod, unlockPeriod } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditPeriodPage(props: PageProps<'/periods/[id]/edit'>) {
   const { id } = await props.params;
@@ -11,6 +12,7 @@ export default async function EditPeriodPage(props: PageProps<'/periods/[id]/edi
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data: period, error } = await supabase
     .from('period')
@@ -72,20 +74,23 @@ export default async function EditPeriodPage(props: PageProps<'/periods/[id]/edi
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit period
         </h2>
-        <form action={locked ? unlockPeriodWithId : lockPeriodWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {locked ? 'Unlock' : 'Lock'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={locked ? unlockPeriodWithId : lockPeriodWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {locked ? 'Unlock' : 'Lock'}
+            </button>
+          </form>
+        )}
       </div>
       <PeriodForm
         period={period as Period}
         contracts={contracts}
         action={updatePeriodWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

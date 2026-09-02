@@ -6,6 +6,7 @@ import {
   deactivateApprovalWorkflow,
   reactivateApprovalWorkflow,
 } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditApprovalWorkflowPage(props: PageProps<'/approval-workflows/[id]/edit'>) {
   const { id } = await props.params;
@@ -15,6 +16,7 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
 
   const { data: workflow, error } = await supabase
@@ -165,14 +167,16 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit approval workflow
         </h2>
-        <form action={active ? deactivateApprovalWorkflowWithId : reactivateApprovalWorkflowWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateApprovalWorkflowWithId : reactivateApprovalWorkflowWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <ApprovalWorkflowForm
         workflow={workflow as ApprovalWorkflow}
@@ -183,6 +187,7 @@ export default async function EditApprovalWorkflowPage(props: PageProps<'/approv
         companies={companies}
         action={updateApprovalWorkflowWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

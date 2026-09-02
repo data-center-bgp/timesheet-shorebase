@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 import { SubcontractorForm, type Subcontractor } from '../../SubcontractorForm';
 import { updateSubcontractor, deactivateSubcontractor, reactivateSubcontractor } from '../../actions';
 
 export default async function EditSubcontractorPage(props: PageProps<'/subcontractors/[id]/edit'>) {
+  const isManager = await isManagerRole();
   const { id } = await props.params;
   const subcontractorId = Number(id);
 
@@ -98,14 +100,16 @@ export default async function EditSubcontractorPage(props: PageProps<'/subcontra
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit subcontractor
         </h2>
-        <form action={active ? deactivateSubcontractorWithId : reactivateSubcontractorWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateSubcontractorWithId : reactivateSubcontractorWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <SubcontractorForm
         subcontractor={subcontractor as Subcontractor}
@@ -113,6 +117,7 @@ export default async function EditSubcontractorPage(props: PageProps<'/subcontra
         companies={companies}
         action={updateSubcontractorWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { ServiceForm } from '../ServiceForm';
 import { createService } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewServicePage() {
+  if (await isManagerRole()) {
+    redirect('/services');
+  }
+
   const supabase = await createClient();
 
   const { data: serviceTypesData, error: serviceTypesError } = await supabase

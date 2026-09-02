@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type ProductFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createProduct(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
@@ -33,6 +38,10 @@ export async function updateProduct(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const name = (formData.get('name') as string | null)?.trim();
   if (!name) {
     return { error: 'Name is required.' };
@@ -50,6 +59,10 @@ export async function updateProduct(
 }
 
 export async function deactivateProduct(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('product')
@@ -69,6 +82,10 @@ export async function deactivateProduct(id: number) {
 }
 
 export async function reactivateProduct(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('product')

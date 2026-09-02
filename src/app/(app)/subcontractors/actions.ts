@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type SubcontractorFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createSubcontractor(
   _prevState: SubcontractorFormState,
   formData: FormData,
 ): Promise<SubcontractorFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractIdRaw = formData.get('contract_id') as string | null;
   const contractId = contractIdRaw ? Number(contractIdRaw) : NaN;
   if (!contractIdRaw || Number.isNaN(contractId)) {
@@ -56,6 +61,10 @@ export async function updateSubcontractor(
   _prevState: SubcontractorFormState,
   formData: FormData,
 ): Promise<SubcontractorFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractIdRaw = formData.get('contract_id') as string | null;
   const contractId = contractIdRaw ? Number(contractIdRaw) : NaN;
   if (!contractIdRaw || Number.isNaN(contractId)) {
@@ -99,6 +108,10 @@ export async function updateSubcontractor(
 }
 
 export async function deactivateSubcontractor(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('subcontractors')
@@ -118,6 +131,10 @@ export async function deactivateSubcontractor(id: number) {
 }
 
 export async function reactivateSubcontractor(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('subcontractors')

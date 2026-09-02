@@ -54,6 +54,7 @@ export function ContractServiceForm({
   timesheetGroups,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   contractService?: ContractService;
   contracts: ContractOption[];
@@ -63,6 +64,7 @@ export function ContractServiceForm({
   timesheetGroups: TimesheetGroupOption[];
   action: (prevState: ContractServiceFormState, formData: FormData) => Promise<ContractServiceFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [uomCode, setUomCode] = useState(contractService?.uom_code ?? '');
@@ -84,6 +86,7 @@ export function ContractServiceForm({
           id="contract_id"
           name="contract_id"
           required
+          disabled={readOnly}
           defaultValue={contractService?.contract_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -106,6 +109,7 @@ export function ContractServiceForm({
           id="service_id"
           name="service_id"
           required
+          disabled={readOnly}
           defaultValue={contractService?.service_id ?? ''}
           onChange={handleServiceChange}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
@@ -130,6 +134,7 @@ export function ContractServiceForm({
           name="code"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={contractService?.code}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -143,6 +148,7 @@ export function ContractServiceForm({
           id="uom_code"
           name="uom_code"
           required
+          disabled={readOnly}
           value={uomCode}
           onChange={(event) => setUomCode(event.target.value)}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
@@ -166,6 +172,7 @@ export function ContractServiceForm({
           id="summary_calculation_type"
           name="summary_calculation_type"
           required
+          disabled={readOnly}
           defaultValue={contractService?.summary_calculation_type ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -190,6 +197,7 @@ export function ContractServiceForm({
             name="start_date"
             type="date"
             required
+            disabled={readOnly}
             defaultValue={contractService?.start_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -203,6 +211,7 @@ export function ContractServiceForm({
             name="end_date"
             type="date"
             required
+            disabled={readOnly}
             defaultValue={contractService?.end_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -217,6 +226,7 @@ export function ContractServiceForm({
           id="timesheet_site_code"
           name="timesheet_site_code"
           type="text"
+          disabled={readOnly}
           defaultValue={contractService?.timesheet_site_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -229,6 +239,7 @@ export function ContractServiceForm({
         <select
           id="timesheet_group_id"
           name="timesheet_group_id"
+          disabled={readOnly}
           defaultValue={contractService?.timesheet_group_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -247,13 +258,17 @@ export function ContractServiceForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

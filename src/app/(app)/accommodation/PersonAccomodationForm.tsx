@@ -37,6 +37,7 @@ export function PersonAccomodationForm({
   roomTypes,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   accomodation?: PersonAccomodation;
   persons: PersonOption[];
@@ -44,6 +45,7 @@ export function PersonAccomodationForm({
   roomTypes: RoomTypeOption[];
   action: (prevState: PersonAccomodationFormState, formData: FormData) => Promise<PersonAccomodationFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -58,6 +60,7 @@ export function PersonAccomodationForm({
           name="person_id"
           required
           defaultValue={accomodation?.person_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -80,6 +83,7 @@ export function PersonAccomodationForm({
           name="contract_service_id"
           required
           defaultValue={accomodation?.contract_service_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -102,6 +106,7 @@ export function PersonAccomodationForm({
           name="room_type_code"
           required
           defaultValue={accomodation?.room_type_code ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -127,6 +132,7 @@ export function PersonAccomodationForm({
           step="1"
           required
           defaultValue={accomodation?.count}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -142,6 +148,7 @@ export function PersonAccomodationForm({
             type="date"
             required
             defaultValue={accomodation?.start_date}
+            disabled={readOnly}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>
@@ -155,6 +162,7 @@ export function PersonAccomodationForm({
             type="date"
             required
             defaultValue={accomodation?.end_date}
+            disabled={readOnly}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>
@@ -166,13 +174,17 @@ export function PersonAccomodationForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

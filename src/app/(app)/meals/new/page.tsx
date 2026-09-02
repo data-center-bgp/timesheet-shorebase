@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { PersonMealForm } from '../PersonMealForm';
 import { createPersonMeal } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewMealPage() {
+  if (await isManagerRole()) {
+    redirect('/meals');
+  }
+
   const supabase = await createClient();
 
   const { data: personsData, error: personsError } = await supabase

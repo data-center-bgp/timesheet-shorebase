@@ -1,7 +1,13 @@
+import { redirect } from 'next/navigation';
 import { EquipmentForm } from '../EquipmentForm';
 import { createEquipment } from '../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
-export default function NewEquipmentPage() {
+export default async function NewEquipmentPage() {
+  if (await isManagerRole()) {
+    redirect('/equipment');
+  }
+
   return (
     <div className="px-6 py-8">
       <p className="font-mono text-xs font-medium tracking-[0.2em] text-zinc-500 dark:text-zinc-400">

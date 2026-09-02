@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type MaterialHandlingItemFormState = {
   error: string | null;
@@ -58,6 +59,10 @@ export async function createMaterialHandlingItem(
   _prevState: MaterialHandlingItemFormState,
   formData: FormData,
 ): Promise<MaterialHandlingItemFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readItemFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -79,6 +84,10 @@ export async function updateMaterialHandlingItem(
   _prevState: MaterialHandlingItemFormState,
   formData: FormData,
 ): Promise<MaterialHandlingItemFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readItemFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -96,6 +105,10 @@ export async function updateMaterialHandlingItem(
 }
 
 export async function deactivateMaterialHandlingItem(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_item')
@@ -115,6 +128,10 @@ export async function deactivateMaterialHandlingItem(id: number) {
 }
 
 export async function reactivateMaterialHandlingItem(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_item')

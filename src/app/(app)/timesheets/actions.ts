@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type TimesheetFormState = {
   error: string | null;
@@ -103,6 +104,10 @@ export async function createTimesheet(
   _prevState: TimesheetFormState,
   formData: FormData,
 ): Promise<TimesheetFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readTimesheetFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -134,6 +139,10 @@ export async function updateTimesheet(
   _prevState: TimesheetFormState,
   formData: FormData,
 ): Promise<TimesheetFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readTimesheetFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -164,6 +173,10 @@ export async function updateTimesheet(
 }
 
 export async function deactivateTimesheet(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.from('timesheet').update({ active: false }).eq('id', id).select('id');
 
@@ -179,6 +192,10 @@ export async function deactivateTimesheet(id: number) {
 }
 
 export async function reactivateTimesheet(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.from('timesheet').update({ active: true }).eq('id', id).select('id');
 

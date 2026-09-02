@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type MaterialHandlingEquipmentRow = {
   id: number;
@@ -9,6 +10,7 @@ type MaterialHandlingEquipmentRow = {
 };
 
 export default async function MaterialHandlingEquipmentPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_equipment')
@@ -28,12 +30,14 @@ export default async function MaterialHandlingEquipmentPage() {
             Material Handling Equipment
           </h2>
         </div>
-        <Link
-          href="/material-handling-equipment/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add equipment usage
-        </Link>
+        {!isManager && (
+          <Link
+            href="/material-handling-equipment/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add equipment usage
+          </Link>
+        )}
       </div>
 
       {error && (

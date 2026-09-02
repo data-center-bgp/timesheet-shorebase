@@ -28,6 +28,7 @@ export function SummaryTimesheetForm({
   companies,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   summaryTimesheet?: SummaryTimesheet;
   periods: PeriodOption[];
@@ -36,6 +37,7 @@ export function SummaryTimesheetForm({
   companies: CompanyOption[];
   action: (prevState: SummaryTimesheetFormState, formData: FormData) => Promise<SummaryTimesheetFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -50,6 +52,7 @@ export function SummaryTimesheetForm({
           name="period_id"
           required
           defaultValue={summaryTimesheet?.period_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -72,6 +75,7 @@ export function SummaryTimesheetForm({
           name="type_code"
           required
           defaultValue={summaryTimesheet?.type_code ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -94,6 +98,7 @@ export function SummaryTimesheetForm({
           name="contract_id"
           required
           defaultValue={summaryTimesheet?.contract_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -116,6 +121,7 @@ export function SummaryTimesheetForm({
           name="company_id"
           required
           defaultValue={summaryTimesheet?.company_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -139,6 +145,7 @@ export function SummaryTimesheetForm({
           type="text"
           required
           defaultValue={summaryTimesheet?.code}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -153,6 +160,7 @@ export function SummaryTimesheetForm({
           type="date"
           required
           defaultValue={summaryTimesheet?.issue_date}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -163,13 +171,17 @@ export function SummaryTimesheetForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

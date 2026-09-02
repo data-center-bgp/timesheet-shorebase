@@ -6,6 +6,7 @@ import {
   deactivateMaterialHandlingEquipment,
   reactivateMaterialHandlingEquipment,
 } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditMaterialHandlingEquipmentPage(
   props: PageProps<'/material-handling-equipment/[id]/edit'>,
@@ -17,6 +18,7 @@ export default async function EditMaterialHandlingEquipmentPage(
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
 
   const { data: record, error } = await supabase
@@ -105,16 +107,18 @@ export default async function EditMaterialHandlingEquipmentPage(
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit material handling equipment
         </h2>
-        <form
-          action={active ? deactivateMaterialHandlingEquipmentWithId : reactivateMaterialHandlingEquipmentWithId}
-        >
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+        {!isManager && (
+          <form
+            action={active ? deactivateMaterialHandlingEquipmentWithId : reactivateMaterialHandlingEquipmentWithId}
           >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <MaterialHandlingEquipmentForm
         record={record as MaterialHandlingEquipmentRecord}
@@ -122,6 +126,7 @@ export default async function EditMaterialHandlingEquipmentPage(
         equipmentOptions={equipmentOptions}
         action={updateMaterialHandlingEquipmentWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

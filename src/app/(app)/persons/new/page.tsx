@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { PersonForm } from '../PersonForm';
 import { createPerson } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewPersonPage() {
+  if (await isManagerRole()) {
+    redirect('/persons');
+  }
+
   const supabase = await createClient();
 
   const { data: companiesData, error: companiesError } = await supabase

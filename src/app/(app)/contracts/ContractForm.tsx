@@ -24,11 +24,13 @@ export function ContractForm({
   companies,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   contract?: Contract;
   companies: CompanyOption[];
   action: (prevState: ContractFormState, formData: FormData) => Promise<ContractFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -42,6 +44,7 @@ export function ContractForm({
           id="company_id"
           name="company_id"
           required
+          disabled={readOnly}
           defaultValue={contract?.company_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -65,6 +68,7 @@ export function ContractForm({
           name="contract_name"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={contract?.contract_name}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -79,6 +83,7 @@ export function ContractForm({
           name="contract_number"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={contract?.contract_number}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -94,6 +99,7 @@ export function ContractForm({
             name="start_date"
             type="date"
             required
+            disabled={readOnly}
             defaultValue={contract?.start_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -107,6 +113,7 @@ export function ContractForm({
             name="end_date"
             type="date"
             required
+            disabled={readOnly}
             defaultValue={contract?.end_date}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
@@ -119,13 +126,17 @@ export function ContractForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

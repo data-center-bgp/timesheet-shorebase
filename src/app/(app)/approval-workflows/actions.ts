@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type ApprovalWorkflowFormState = {
   error: string | null;
@@ -63,6 +64,10 @@ export async function createApprovalWorkflow(
   _prevState: ApprovalWorkflowFormState,
   formData: FormData,
 ): Promise<ApprovalWorkflowFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readApprovalWorkflowFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -84,6 +89,10 @@ export async function updateApprovalWorkflow(
   _prevState: ApprovalWorkflowFormState,
   formData: FormData,
 ): Promise<ApprovalWorkflowFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readApprovalWorkflowFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -101,6 +110,10 @@ export async function updateApprovalWorkflow(
 }
 
 export async function deactivateApprovalWorkflow(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('approval_workflow')
@@ -120,6 +133,10 @@ export async function deactivateApprovalWorkflow(id: number) {
 }
 
 export async function reactivateApprovalWorkflow(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('approval_workflow')

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type JettyShipRow = {
   id: number;
@@ -9,6 +10,7 @@ type JettyShipRow = {
 };
 
 export default async function JettyShipPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('jetty_ship')
@@ -28,12 +30,14 @@ export default async function JettyShipPage() {
             Jetty & Ship
           </h2>
         </div>
-        <Link
-          href="/jetty-ships/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add jetty/ship
-        </Link>
+        {!isManager && (
+          <Link
+            href="/jetty-ships/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add jetty/ship
+          </Link>
+        )}
       </div>
 
       {error && (

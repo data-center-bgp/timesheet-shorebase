@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type JettyShipFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createJettyShip(
   _prevState: JettyShipFormState,
   formData: FormData,
 ): Promise<JettyShipFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const type = (formData.get('type') as string | null)?.trim();
   if (!type) {
     return { error: 'Type is required.' };
@@ -38,6 +43,10 @@ export async function updateJettyShip(
   _prevState: JettyShipFormState,
   formData: FormData,
 ): Promise<JettyShipFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const type = (formData.get('type') as string | null)?.trim();
   if (!type) {
     return { error: 'Type is required.' };
@@ -60,6 +69,10 @@ export async function updateJettyShip(
 }
 
 export async function deactivateJettyShip(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('jetty_ship')
@@ -79,6 +92,10 @@ export async function deactivateJettyShip(id: number) {
 }
 
 export async function reactivateJettyShip(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('jetty_ship')

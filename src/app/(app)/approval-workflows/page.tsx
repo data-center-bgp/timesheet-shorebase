@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 type ApprovalWorkflowRow = {
   id: number;
@@ -14,6 +15,7 @@ type ApprovalWorkflowRow = {
 };
 
 export default async function ApprovalWorkflowsPage() {
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('approval_workflow')
@@ -35,12 +37,14 @@ export default async function ApprovalWorkflowsPage() {
             Approval Workflows
           </h2>
         </div>
-        <Link
-          href="/approval-workflows/new"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-        >
-          Add workflow
-        </Link>
+        {!isManager && (
+          <Link
+            href="/approval-workflows/new"
+            className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Add workflow
+          </Link>
+        )}
       </div>
 
       {error && (

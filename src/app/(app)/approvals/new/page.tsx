@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { ApprovalForm } from '../ApprovalForm';
 import { createApproval } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewApprovalPage() {
+  if (await isManagerRole()) {
+    redirect('/approvals');
+  }
+
   const supabase = await createClient();
 
   const { data: workflowStagesData, error: workflowStagesError } = await supabase

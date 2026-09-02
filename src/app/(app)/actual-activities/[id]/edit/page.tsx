@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ActualActivityForm, type ActualActivity } from '../../ActualActivityForm';
 import { updateActualActivity, deactivateActualActivity, reactivateActualActivity } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditActualActivityPage(props: PageProps<'/actual-activities/[id]/edit'>) {
   const { id } = await props.params;
@@ -11,6 +12,7 @@ export default async function EditActualActivityPage(props: PageProps<'/actual-a
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data: actualActivity, error } = await supabase
     .from('activity')
@@ -77,20 +79,23 @@ export default async function EditActualActivityPage(props: PageProps<'/actual-a
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit actual activity
         </h2>
-        <form action={active ? deactivateActualActivityWithId : reactivateActualActivityWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateActualActivityWithId : reactivateActualActivityWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <ActualActivityForm
         actualActivity={actualActivity as ActualActivity}
         planActivities={planActivities}
         action={updateActualActivityWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

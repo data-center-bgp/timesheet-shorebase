@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { ActualActivityForm } from '../ActualActivityForm';
 import { createActualActivity } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewActualActivityPage() {
+  if (await isManagerRole()) {
+    redirect('/actual-activities');
+  }
+
   const supabase = await createClient();
 
   const { data: planActivitiesData, error: planActivitiesError } = await supabase

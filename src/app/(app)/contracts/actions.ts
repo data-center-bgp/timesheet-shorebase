@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type ContractFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createContract(
   _prevState: ContractFormState,
   formData: FormData,
 ): Promise<ContractFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractName = (formData.get('contract_name') as string | null)?.trim();
   if (!contractName) {
     return { error: 'Contract name is required.' };
@@ -60,6 +65,10 @@ export async function updateContract(
   _prevState: ContractFormState,
   formData: FormData,
 ): Promise<ContractFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const contractName = (formData.get('contract_name') as string | null)?.trim();
   if (!contractName) {
     return { error: 'Contract name is required.' };
@@ -107,6 +116,10 @@ export async function updateContract(
 }
 
 export async function deactivateContract(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract')
@@ -126,6 +139,10 @@ export async function deactivateContract(id: number) {
 }
 
 export async function reactivateContract(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('contract')

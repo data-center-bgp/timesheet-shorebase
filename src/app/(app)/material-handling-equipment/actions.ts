@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type MaterialHandlingEquipmentFormState = {
   error: string | null;
@@ -43,6 +44,10 @@ export async function createMaterialHandlingEquipment(
   _prevState: MaterialHandlingEquipmentFormState,
   formData: FormData,
 ): Promise<MaterialHandlingEquipmentFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readEquipmentFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -64,6 +69,10 @@ export async function updateMaterialHandlingEquipment(
   _prevState: MaterialHandlingEquipmentFormState,
   formData: FormData,
 ): Promise<MaterialHandlingEquipmentFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const parsed = readEquipmentFields(formData);
   if ('error' in parsed) {
     return { error: parsed.error };
@@ -81,6 +90,10 @@ export async function updateMaterialHandlingEquipment(
 }
 
 export async function deactivateMaterialHandlingEquipment(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_equipment')
@@ -100,6 +113,10 @@ export async function deactivateMaterialHandlingEquipment(id: number) {
 }
 
 export async function reactivateMaterialHandlingEquipment(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_equipment')

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type JobTitleFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createJobTitle(
   _prevState: JobTitleFormState,
   formData: FormData,
 ): Promise<JobTitleFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -53,6 +58,10 @@ export async function updateJobTitle(
   _prevState: JobTitleFormState,
   formData: FormData,
 ): Promise<JobTitleFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -88,6 +97,10 @@ export async function updateJobTitle(
 }
 
 export async function deactivateJobTitle(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('job_title')
@@ -107,6 +120,10 @@ export async function deactivateJobTitle(id: number) {
 }
 
 export async function reactivateJobTitle(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('job_title')

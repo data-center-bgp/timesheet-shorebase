@@ -36,6 +36,7 @@ export function TimesheetForm({
   materialHandlingJobs,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   timesheet?: Timesheet;
   periods: PeriodOption[];
@@ -46,6 +47,7 @@ export function TimesheetForm({
   materialHandlingJobs: MaterialHandlingJobOption[];
   action: (prevState: TimesheetFormState, formData: FormData) => Promise<TimesheetFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -59,6 +61,7 @@ export function TimesheetForm({
           id="period_id"
           name="period_id"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.period_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -81,6 +84,7 @@ export function TimesheetForm({
           id="type_code"
           name="type_code"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.type_code ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -103,6 +107,7 @@ export function TimesheetForm({
           id="contract_service_id"
           name="contract_service_id"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.contract_service_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -126,6 +131,7 @@ export function TimesheetForm({
           name="timesheet_date"
           type="date"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.timesheet_date}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -140,6 +146,7 @@ export function TimesheetForm({
           name="code"
           type="text"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.code}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -155,6 +162,7 @@ export function TimesheetForm({
           type="number"
           step="1"
           min="0"
+          disabled={readOnly}
           defaultValue={timesheet?.code_serial_number ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -171,6 +179,7 @@ export function TimesheetForm({
           step="any"
           min="0"
           required
+          disabled={readOnly}
           defaultValue={timesheet?.total_amount}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -183,6 +192,7 @@ export function TimesheetForm({
         <select
           id="subcontractor_id"
           name="subcontractor_id"
+          disabled={readOnly}
           defaultValue={timesheet?.subcontractor_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -202,6 +212,7 @@ export function TimesheetForm({
         <select
           id="jetty_ship_id"
           name="jetty_ship_id"
+          disabled={readOnly}
           defaultValue={timesheet?.jetty_ship_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -221,6 +232,7 @@ export function TimesheetForm({
         <select
           id="mh_job_id"
           name="mh_job_id"
+          disabled={readOnly}
           defaultValue={timesheet?.mh_job_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -239,13 +251,17 @@ export function TimesheetForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

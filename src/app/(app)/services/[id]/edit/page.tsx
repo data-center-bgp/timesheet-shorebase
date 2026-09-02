@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ServiceForm, type Service } from '../../ServiceForm';
 import { updateService, deactivateService, reactivateService } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditServicePage(props: PageProps<'/services/[id]/edit'>) {
   const { id } = await props.params;
@@ -11,6 +12,7 @@ export default async function EditServicePage(props: PageProps<'/services/[id]/e
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data: service, error } = await supabase
     .from('shorebase_service')
@@ -81,14 +83,16 @@ export default async function EditServicePage(props: PageProps<'/services/[id]/e
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit service
         </h2>
-        <form action={active ? deactivateServiceWithId : reactivateServiceWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateServiceWithId : reactivateServiceWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <ServiceForm
         service={service as Service}
@@ -96,6 +100,7 @@ export default async function EditServicePage(props: PageProps<'/services/[id]/e
         uoms={uoms}
         action={updateServiceWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

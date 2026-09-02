@@ -31,6 +31,7 @@ export function ApprovalWorkflowForm({
   companies,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   workflow?: ApprovalWorkflow;
   approvalTypes: ApprovalTypeOption[];
@@ -40,6 +41,7 @@ export function ApprovalWorkflowForm({
   companies: CompanyOption[];
   action: (prevState: ApprovalWorkflowFormState, formData: FormData) => Promise<ApprovalWorkflowFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -54,6 +56,7 @@ export function ApprovalWorkflowForm({
           name="type_code"
           required
           defaultValue={workflow?.type_code ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -77,6 +80,7 @@ export function ApprovalWorkflowForm({
           type="date"
           required
           defaultValue={workflow?.start_date}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -91,6 +95,7 @@ export function ApprovalWorkflowForm({
           type="date"
           required
           defaultValue={workflow?.end_date}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -103,6 +108,7 @@ export function ApprovalWorkflowForm({
           id="timesheet_type_code"
           name="timesheet_type_code"
           defaultValue={workflow?.timesheet_type_code ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="">Any timesheet type</option>
@@ -122,6 +128,7 @@ export function ApprovalWorkflowForm({
           id="contract_id"
           name="contract_id"
           defaultValue={workflow?.contract_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="">Any contract</option>
@@ -141,6 +148,7 @@ export function ApprovalWorkflowForm({
           id="subcontractor_id"
           name="subcontractor_id"
           defaultValue={workflow?.subcontractor_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="">No subcontractor</option>
@@ -160,6 +168,7 @@ export function ApprovalWorkflowForm({
           id="company_id"
           name="company_id"
           defaultValue={workflow?.company_id ?? ''}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="">Any company</option>
@@ -177,13 +186,17 @@ export function ApprovalWorkflowForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

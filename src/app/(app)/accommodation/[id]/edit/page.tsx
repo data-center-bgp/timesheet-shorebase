@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { PersonAccomodationForm, type PersonAccomodation } from '../../PersonAccomodationForm';
 import { updatePersonAccomodation, deactivatePersonAccomodation, reactivatePersonAccomodation } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditAccommodationPage(props: PageProps<'/accommodation/[id]/edit'>) {
+  const isManager = await isManagerRole();
   const { id } = await props.params;
   const accomodationId = Number(id);
 
@@ -118,14 +120,16 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit accommodation
         </h2>
-        <form action={active ? deactivatePersonAccomodationWithId : reactivatePersonAccomodationWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivatePersonAccomodationWithId : reactivatePersonAccomodationWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <PersonAccomodationForm
         accomodation={accomodation as PersonAccomodation}
@@ -134,6 +138,7 @@ export default async function EditAccommodationPage(props: PageProps<'/accommoda
         roomTypes={roomTypes}
         action={updatePersonAccomodationWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

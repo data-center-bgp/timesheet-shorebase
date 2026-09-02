@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { MaterialHandlingItemForm } from '../MaterialHandlingItemForm';
 import { createMaterialHandlingItem } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewMaterialHandlingItemPage() {
+  if (await isManagerRole()) {
+    redirect('/material-handling-items');
+  }
+
   const supabase = await createClient();
 
   const { data: jobsData, error: jobsError } = await supabase

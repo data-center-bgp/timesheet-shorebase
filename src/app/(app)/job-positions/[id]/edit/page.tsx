@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { JobPositionForm, type JobPosition } from '../../JobPositionForm';
 import { updateJobPosition, deactivateJobPosition, reactivateJobPosition } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditJobPositionPage(props: PageProps<'/job-positions/[id]/edit'>) {
+  const isManager = await isManagerRole();
   const { id } = await props.params;
   const jobPositionId = Number(id);
 
@@ -134,14 +136,16 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit job position
         </h2>
-        <form action={active ? deactivateJobPositionWithId : reactivateJobPositionWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateJobPositionWithId : reactivateJobPositionWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <JobPositionForm
         jobPosition={jobPosition as JobPosition}
@@ -150,6 +154,7 @@ export default async function EditJobPositionPage(props: PageProps<'/job-positio
         parentPositionOptions={parentPositionOptions}
         action={updateJobPositionWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

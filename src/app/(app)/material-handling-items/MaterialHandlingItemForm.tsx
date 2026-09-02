@@ -36,6 +36,7 @@ export function MaterialHandlingItemForm({
   uoms,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   item?: MaterialHandlingItem;
   jobs: JobOption[];
@@ -43,6 +44,7 @@ export function MaterialHandlingItemForm({
   uoms: UomOption[];
   action: (prevState: MaterialHandlingItemFormState, formData: FormData) => Promise<MaterialHandlingItemFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -56,6 +58,7 @@ export function MaterialHandlingItemForm({
           id="job_id"
           name="job_id"
           required
+          disabled={readOnly}
           defaultValue={item?.job_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -78,6 +81,7 @@ export function MaterialHandlingItemForm({
           id="product_id"
           name="product_id"
           required
+          disabled={readOnly}
           defaultValue={item?.product_id ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -103,6 +107,7 @@ export function MaterialHandlingItemForm({
           step="any"
           min="0"
           required
+          disabled={readOnly}
           defaultValue={item?.quantity}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -116,6 +121,7 @@ export function MaterialHandlingItemForm({
           id="uom"
           name="uom"
           required
+          disabled={readOnly}
           defaultValue={item?.uom ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
@@ -140,6 +146,7 @@ export function MaterialHandlingItemForm({
           type="number"
           step="any"
           min="0"
+          disabled={readOnly}
           defaultValue={item?.unit_size ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
@@ -151,13 +158,17 @@ export function MaterialHandlingItemForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

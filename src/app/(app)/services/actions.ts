@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export type ServiceFormState = {
   error: string | null;
@@ -12,6 +13,10 @@ export async function createService(
   _prevState: ServiceFormState,
   formData: FormData,
 ): Promise<ServiceFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -67,6 +72,10 @@ export async function updateService(
   _prevState: ServiceFormState,
   formData: FormData,
 ): Promise<ServiceFormState> {
+  if (await isManagerRole()) {
+    return { error: 'Managers have read-only access.' };
+  }
+
   const code = (formData.get('code') as string | null)?.trim();
   if (!code) {
     return { error: 'Code is required.' };
@@ -121,6 +130,10 @@ export async function updateService(
 }
 
 export async function deactivateService(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('shorebase_service')
@@ -140,6 +153,10 @@ export async function deactivateService(id: number) {
 }
 
 export async function reactivateService(id: number) {
+  if (await isManagerRole()) {
+    throw new Error('Managers have read-only access.');
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('shorebase_service')

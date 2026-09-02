@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { ContractServiceForm } from '../ContractServiceForm';
 import { createContractService } from '../actions';
 import { createClient } from '@/lib/supabase/server';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function NewContractServicePage() {
+  if (await isManagerRole()) {
+    redirect('/contract-services');
+  }
+
   const supabase = await createClient();
 
   const { data: contractsData, error: contractsError } = await supabase

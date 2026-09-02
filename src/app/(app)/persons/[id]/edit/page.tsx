@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { PersonForm, type Person } from '../../PersonForm';
 import { updatePerson, deactivatePerson, reactivatePerson } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditPersonPage(props: PageProps<'/persons/[id]/edit'>) {
+  const isManager = await isManagerRole();
   const { id } = await props.params;
   const personId = Number(id);
 
@@ -89,14 +91,16 @@ export default async function EditPersonPage(props: PageProps<'/persons/[id]/edi
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit person
         </h2>
-        <form action={is_active ? deactivatePersonWithId : reactivatePersonWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {is_active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={is_active ? deactivatePersonWithId : reactivatePersonWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {is_active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <PersonForm
         person={person as Person}
@@ -104,6 +108,7 @@ export default async function EditPersonPage(props: PageProps<'/persons/[id]/edi
         staffTypes={staffTypes}
         action={updatePersonWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );

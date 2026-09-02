@@ -17,10 +17,12 @@ export function CompanyForm({
   company,
   action,
   submitLabel,
+  readOnly = false,
 }: {
   company?: Company;
   action: (prevState: CompanyFormState, formData: FormData) => Promise<CompanyFormState>;
   submitLabel: string;
+  readOnly?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -36,6 +38,7 @@ export function CompanyForm({
           type="text"
           required
           defaultValue={company?.name}
+          disabled={readOnly}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
@@ -46,6 +49,7 @@ export function CompanyForm({
           name="internal"
           type="checkbox"
           defaultChecked={company?.internal}
+          disabled={readOnly}
           className="size-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-600/40 dark:border-zinc-700"
         />
         <label htmlFor="internal" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -63,6 +67,7 @@ export function CompanyForm({
             name="start_date"
             type="date"
             defaultValue={company?.start_date ?? ''}
+            disabled={readOnly}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>
@@ -75,6 +80,7 @@ export function CompanyForm({
             name="end_date"
             type="date"
             defaultValue={company?.end_date ?? ''}
+            disabled={readOnly}
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </div>
@@ -86,13 +92,17 @@ export function CompanyForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        {pending ? 'Saving…' : submitLabel}
-      </button>
+      {readOnly ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Managers have read-only access.</p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          {pending ? 'Saving…' : submitLabel}
+        </button>
+      )}
     </form>
   );
 }

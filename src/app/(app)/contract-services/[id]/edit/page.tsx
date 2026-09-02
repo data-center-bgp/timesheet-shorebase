@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ContractServiceForm, type ContractService } from '../../ContractServiceForm';
 import { updateContractService, deactivateContractService, reactivateContractService } from '../../actions';
+import { isManagerRole } from '@/lib/auth/require-master';
 
 export default async function EditContractServicePage(props: PageProps<'/contract-services/[id]/edit'>) {
   const { id } = await props.params;
@@ -11,6 +12,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
     notFound();
   }
 
+  const isManager = await isManagerRole();
   const supabase = await createClient();
   const { data: contractService, error } = await supabase
     .from('contract_service')
@@ -168,14 +170,16 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
         <h2 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
           Edit contract service
         </h2>
-        <form action={active ? deactivateContractServiceWithId : reactivateContractServiceWithId}>
-          <button
-            type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-          >
-            {active ? 'Deactivate' : 'Reactivate'}
-          </button>
-        </form>
+        {!isManager && (
+          <form action={active ? deactivateContractServiceWithId : reactivateContractServiceWithId}>
+            <button
+              type="submit"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            >
+              {active ? 'Deactivate' : 'Reactivate'}
+            </button>
+          </form>
+        )}
       </div>
       <ContractServiceForm
         contractService={contractService as ContractService}
@@ -186,6 +190,7 @@ export default async function EditContractServicePage(props: PageProps<'/contrac
         timesheetGroups={timesheetGroups}
         action={updateContractServiceWithId}
         submitLabel="Save changes"
+        readOnly={isManager}
       />
     </div>
   );
