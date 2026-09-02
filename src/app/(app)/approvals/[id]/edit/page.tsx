@@ -17,7 +17,9 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
 
   const { data: approval, error } = await supabase
     .from('approval')
-    .select('id, workflow_stage_id, timesheet_id, status_code, approver_user_id, approver_user_pos_id, remark, active')
+    .select(
+      'id, workflow_stage_id, timesheet_id, status_code, approver_user_id, approver_user_pos_id, remark, active, summary_timesheet_id, proforma_invoice_id, invoice_id',
+    )
     .eq('id', approvalId)
     .maybeSingle();
 
@@ -37,7 +39,7 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
 
   const { data: workflowStagesData, error: workflowStagesError } = await supabase
     .from('approval_workflow_stage')
-    .select('id, workflow_id, level')
+    .select('id, workflow_id, level, approval_workflow(type_code)')
     .eq('active', true)
     .order('workflow_id', { ascending: true })
     .order('level', { ascending: true });
@@ -109,7 +111,66 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
     );
   }
 
-  let workflowStages = workflowStagesData ?? [];
+  const { data: summaryTimesheetsData, error: summaryTimesheetsError } = await supabase
+    .from('summary_timesheet')
+    .select('id, code')
+    .eq('active', true)
+    .order('code', { ascending: true });
+  if (summaryTimesheetsError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load summary timesheets: {summaryTimesheetsError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const { data: proformaInvoicesData, error: proformaInvoicesError } = await supabase
+    .from('invoice')
+    .select('id, code')
+    .eq('type_code', 'P')
+    .order('code', { ascending: true });
+  if (proformaInvoicesError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load proforma invoices: {proformaInvoicesError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const { data: invoicesData, error: invoicesError } = await supabase
+    .from('invoice')
+    .select('id, code')
+    .eq('type_code', 'I')
+    .order('code', { ascending: true });
+  if (invoicesError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load invoices: {invoicesError.message}
+        </p>
+      </div>
+    );
+  }
+
+  type RawWorkflowStage = {
+    id: number;
+    workflow_id: number;
+    level: number;
+    approval_workflow: { type_code: string } | null;
+  };
+  type FlatWorkflowStage = { id: number; workflow_id: number; level: number; type_code: string };
+  const flattenWorkflowStage = (stage: RawWorkflowStage): FlatWorkflowStage => ({
+    id: stage.id,
+    workflow_id: stage.workflow_id,
+    level: stage.level,
+    type_code: stage.approval_workflow?.type_code ?? '',
+  });
+
+  let workflowStages = ((workflowStagesData ?? []) as unknown as RawWorkflowStage[]).map(flattenWorkflowStage);
   let timesheets = timesheetsData ?? [];
   const approvalStatuses = approvalStatusesData ?? [];
   const appUsers = appUsersData ?? [];
@@ -118,14 +179,19 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
     app_user: { name: string | null; email: string | null } | null;
     job_position: { name: string } | null;
   }[];
+  let summaryTimesheets = summaryTimesheetsData ?? [];
+  const proformaInvoices = proformaInvoicesData ?? [];
+  const invoices = invoicesData ?? [];
 
   if (approval.workflow_stage_id && !workflowStages.some((ws) => ws.id === approval.workflow_stage_id)) {
     const { data: currentWorkflowStage } = await supabase
       .from('approval_workflow_stage')
-      .select('id, workflow_id, level')
+      .select('id, workflow_id, level, approval_workflow(type_code)')
       .eq('id', approval.workflow_stage_id)
       .maybeSingle();
-    if (currentWorkflowStage) workflowStages = [...workflowStages, currentWorkflowStage];
+    if (currentWorkflowStage) {
+      workflowStages = [...workflowStages, flattenWorkflowStage(currentWorkflowStage as unknown as RawWorkflowStage)];
+    }
   }
 
   if (approval.timesheet_id && !timesheets.some((t) => t.id === approval.timesheet_id)) {
@@ -135,6 +201,18 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
       .eq('id', approval.timesheet_id)
       .maybeSingle();
     if (currentTimesheet) timesheets = [...timesheets, currentTimesheet];
+  }
+
+  if (
+    approval.summary_timesheet_id &&
+    !summaryTimesheets.some((st) => st.id === approval.summary_timesheet_id)
+  ) {
+    const { data: currentSummaryTimesheet } = await supabase
+      .from('summary_timesheet')
+      .select('id, code')
+      .eq('id', approval.summary_timesheet_id)
+      .maybeSingle();
+    if (currentSummaryTimesheet) summaryTimesheets = [...summaryTimesheets, currentSummaryTimesheet];
   }
 
   if (
@@ -190,6 +268,9 @@ export default async function EditApprovalPage(props: PageProps<'/approvals/[id]
         approvalStatuses={approvalStatuses}
         appUsers={appUsers}
         userPositions={userPositions}
+        summaryTimesheets={summaryTimesheets}
+        proformaInvoices={proformaInvoices}
+        invoices={invoices}
         action={updateApprovalWithId}
         submitLabel="Save changes"
         readOnly={isManager}

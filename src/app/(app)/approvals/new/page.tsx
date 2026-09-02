@@ -13,7 +13,7 @@ export default async function NewApprovalPage() {
 
   const { data: workflowStagesData, error: workflowStagesError } = await supabase
     .from('approval_workflow_stage')
-    .select('id, workflow_id, level')
+    .select('id, workflow_id, level, approval_workflow(type_code)')
     .eq('active', true)
     .order('workflow_id', { ascending: true })
     .order('level', { ascending: true });
@@ -85,7 +85,65 @@ export default async function NewApprovalPage() {
     );
   }
 
-  const workflowStages = workflowStagesData ?? [];
+  const { data: summaryTimesheetsData, error: summaryTimesheetsError } = await supabase
+    .from('summary_timesheet')
+    .select('id, code')
+    .eq('active', true)
+    .order('code', { ascending: true });
+  if (summaryTimesheetsError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load summary timesheets: {summaryTimesheetsError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const { data: proformaInvoicesData, error: proformaInvoicesError } = await supabase
+    .from('invoice')
+    .select('id, code')
+    .eq('type_code', 'P')
+    .order('code', { ascending: true });
+  if (proformaInvoicesError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load proforma invoices: {proformaInvoicesError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const { data: invoicesData, error: invoicesError } = await supabase
+    .from('invoice')
+    .select('id, code')
+    .eq('type_code', 'I')
+    .order('code', { ascending: true });
+  if (invoicesError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load invoices: {invoicesError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const workflowStages = (workflowStagesData ?? []).map((stage) => {
+    const stageRow = stage as unknown as {
+      id: number;
+      workflow_id: number;
+      level: number;
+      approval_workflow: { type_code: string } | null;
+    };
+    return {
+      id: stageRow.id,
+      workflow_id: stageRow.workflow_id,
+      level: stageRow.level,
+      type_code: stageRow.approval_workflow?.type_code ?? '',
+    };
+  });
   const timesheets = timesheetsData ?? [];
   const approvalStatuses = approvalStatusesData ?? [];
   const appUsers = appUsersData ?? [];
@@ -94,6 +152,9 @@ export default async function NewApprovalPage() {
     app_user: { name: string | null; email: string | null } | null;
     job_position: { name: string } | null;
   }[];
+  const summaryTimesheets = summaryTimesheetsData ?? [];
+  const proformaInvoices = proformaInvoicesData ?? [];
+  const invoices = invoicesData ?? [];
 
   return (
     <div className="px-6 py-8">
@@ -109,6 +170,9 @@ export default async function NewApprovalPage() {
         approvalStatuses={approvalStatuses}
         appUsers={appUsers}
         userPositions={userPositions}
+        summaryTimesheets={summaryTimesheets}
+        proformaInvoices={proformaInvoices}
+        invoices={invoices}
         action={createApproval}
         submitLabel="Create approval"
       />

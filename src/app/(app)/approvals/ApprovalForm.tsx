@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import type { ApprovalFormState } from './actions';
+import { APPROVAL_TYPE_NAMES } from './approval-types';
 
 export type Approval = {
   id: number;
@@ -11,9 +12,12 @@ export type Approval = {
   approver_user_id: string | null;
   approver_user_pos_id: number | null;
   remark: string | null;
+  summary_timesheet_id: number | null;
+  proforma_invoice_id: number | null;
+  invoice_id: number | null;
 };
 
-export type WorkflowStageOption = { id: number; workflow_id: number; level: number };
+export type WorkflowStageOption = { id: number; workflow_id: number; level: number; type_code: string };
 export type TimesheetOption = { id: number; code: string };
 export type ApprovalStatusOption = { code: string; name: string };
 export type AppUserOption = { id: string; name: string | null; email: string | null };
@@ -22,6 +26,8 @@ export type UserPositionOption = {
   app_user: { name: string | null; email: string | null } | null;
   job_position: { name: string } | null;
 };
+export type SummaryTimesheetOption = { id: number; code: string };
+export type InvoiceOption = { id: number; code: string | null };
 
 const initialState: ApprovalFormState = { error: null };
 
@@ -38,6 +44,9 @@ export function ApprovalForm({
   approvalStatuses,
   appUsers,
   userPositions,
+  summaryTimesheets,
+  proformaInvoices,
+  invoices,
   action,
   submitLabel,
   readOnly = false,
@@ -48,6 +57,9 @@ export function ApprovalForm({
   approvalStatuses: ApprovalStatusOption[];
   appUsers: AppUserOption[];
   userPositions: UserPositionOption[];
+  summaryTimesheets: SummaryTimesheetOption[];
+  proformaInvoices: InvoiceOption[];
+  invoices: InvoiceOption[];
   action: (prevState: ApprovalFormState, formData: FormData) => Promise<ApprovalFormState>;
   submitLabel: string;
   readOnly?: boolean;
@@ -73,7 +85,7 @@ export function ApprovalForm({
           </option>
           {workflowStages.map((stage) => (
             <option key={stage.id} value={stage.id}>
-              Level {stage.level} — Workflow #{stage.workflow_id}
+              {`Level ${stage.level} — Workflow #${stage.workflow_id} (${APPROVAL_TYPE_NAMES[stage.type_code] ?? stage.type_code})`}
             </option>
           ))}
         </select>
@@ -97,6 +109,66 @@ export function ApprovalForm({
           {timesheets.map((timesheet) => (
             <option key={timesheet.id} value={timesheet.id}>
               {timesheet.code}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="summary_timesheet_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Summary timesheet
+        </label>
+        <select
+          id="summary_timesheet_id"
+          name="summary_timesheet_id"
+          defaultValue={approval?.summary_timesheet_id ?? ''}
+          disabled={readOnly}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        >
+          <option value="">No summary timesheet</option>
+          {summaryTimesheets.map((summaryTimesheet) => (
+            <option key={summaryTimesheet.id} value={summaryTimesheet.id}>
+              {summaryTimesheet.code}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="proforma_invoice_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Proforma invoice
+        </label>
+        <select
+          id="proforma_invoice_id"
+          name="proforma_invoice_id"
+          defaultValue={approval?.proforma_invoice_id ?? ''}
+          disabled={readOnly}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        >
+          <option value="">No proforma invoice</option>
+          {proformaInvoices.map((proformaInvoice) => (
+            <option key={proformaInvoice.id} value={proformaInvoice.id}>
+              {proformaInvoice.code ?? `Proforma Invoice #${proformaInvoice.id}`}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="invoice_id" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Invoice
+        </label>
+        <select
+          id="invoice_id"
+          name="invoice_id"
+          defaultValue={approval?.invoice_id ?? ''}
+          disabled={readOnly}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        >
+          <option value="">No invoice</option>
+          {invoices.map((invoice) => (
+            <option key={invoice.id} value={invoice.id}>
+              {invoice.code ?? `Invoice #${invoice.id}`}
             </option>
           ))}
         </select>

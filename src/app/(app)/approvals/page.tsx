@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { isManagerRole } from '@/lib/auth/require-master';
+import { APPROVAL_TYPE_NAMES } from './approval-types';
 
 type ApprovalRow = {
   id: number;
   active: boolean;
   remark: string | null;
+  type_code: string;
   timesheet: { code: string } | null;
   approval_status: { name: string } | null;
 };
@@ -15,7 +17,7 @@ export default async function ApprovalsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('approval')
-    .select('id, active, remark, timesheet(code), approval_status(name)')
+    .select('id, active, remark, type_code, timesheet(code), approval_status(name)')
     .order('id', { ascending: true });
 
   const approvals = (data ?? []) as unknown as ApprovalRow[];
@@ -59,6 +61,7 @@ export default async function ApprovalsPage() {
             <thead className="border-b border-zinc-200 bg-zinc-50 text-left text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
               <tr>
                 <th className="px-4 py-2">Timesheet</th>
+                <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Approval Status</th>
                 <th className="px-4 py-2">Remark</th>
                 <th className="px-4 py-2">Status</th>
@@ -73,6 +76,9 @@ export default async function ApprovalsPage() {
                       <Link href={`/approvals/${approval.id}/edit`} className="hover:underline">
                         {approval.timesheet?.code ?? '—'}
                       </Link>
+                    </td>
+                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                      {APPROVAL_TYPE_NAMES[approval.type_code] ?? approval.type_code}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {approval.approval_status?.name ?? '—'}
