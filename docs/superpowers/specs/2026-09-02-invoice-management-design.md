@@ -60,8 +60,10 @@ requirement for anything new.
 
 ## Fields per form
 
-**Proforma Invoice** (`ProformaInvoiceForm.tsx`): `period_id` (dropdown,
-active-filtered + current-value fallback), `code` (text, required — the
+**Proforma Invoice** (`ProformaInvoiceForm.tsx`): `period_id` (dropdown —
+`period` has no `active` column, so this is plain/unfiltered, same
+convention already used by `summary-timesheets`' own period dropdown),
+`code` (text, required — the
 one identifying field, same convention as every other feature's primary
 text field), `issue_date` (date, optional), `tax_percentage` (number,
 optional, `>= 0` if present). `type_code` hardcoded `'P'`, `status_code`
