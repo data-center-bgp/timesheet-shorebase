@@ -3,10 +3,13 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { resolveLoginEmail } from './actions';
+
+const INVALID_CREDENTIALS_ERROR = 'Invalid username/email or password.';
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,15 +19,26 @@ export function LoginForm() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
     try {
+      let email = identifier.trim();
+      if (!email.includes('@')) {
+        const resolved = await resolveLoginEmail(email);
+        if ('error' in resolved) {
+          setError(resolved.error);
+          setLoading(false);
+          return;
+        }
+        email = resolved.email;
+      }
+
+      const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(INVALID_CREDENTIALS_ERROR);
         setLoading(false);
         return;
       }
@@ -54,19 +68,19 @@ export function LoginForm() {
         <div className="mt-6 space-y-4">
           <div className="space-y-1">
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Email
+              Username or email
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
+              id="identifier"
+              name="identifier"
+              type="text"
+              autoComplete="username"
               required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
               className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
             />
           </div>
