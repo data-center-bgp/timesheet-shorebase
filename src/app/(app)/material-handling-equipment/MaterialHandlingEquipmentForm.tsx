@@ -29,6 +29,8 @@ export function MaterialHandlingEquipmentForm({
   action,
   submitLabel,
   readOnly = false,
+  defaultJobId,
+  returnTo,
 }: {
   record?: MaterialHandlingEquipmentRecord;
   jobs: JobOption[];
@@ -39,6 +41,8 @@ export function MaterialHandlingEquipmentForm({
   ) => Promise<MaterialHandlingEquipmentFormState>;
   submitLabel: string;
   readOnly?: boolean;
+  defaultJobId?: number;
+  returnTo?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
@@ -53,7 +57,7 @@ export function MaterialHandlingEquipmentForm({
           name="job_id"
           required
           disabled={readOnly}
-          defaultValue={record?.job_id ?? ''}
+          defaultValue={record?.job_id ?? defaultJobId ?? ''}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
           <option value="" disabled>
@@ -89,6 +93,8 @@ export function MaterialHandlingEquipmentForm({
           ))}
         </select>
       </div>
+
+      {returnTo && <input type="hidden" name="return_to" value={returnTo} />}
 
       {state.error && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">

@@ -4,10 +4,15 @@ import { createMaterialHandlingItem } from '../actions';
 import { createClient } from '@/lib/supabase/server';
 import { isManagerRole } from '@/lib/auth/require-master';
 
-export default async function NewMaterialHandlingItemPage() {
+export default async function NewMaterialHandlingItemPage(props: PageProps<'/material-handling-items/new'>) {
   if (await isManagerRole()) {
     redirect('/material-handling-items');
   }
+
+  const searchParams = await props.searchParams;
+  const jobIdRaw = Array.isArray(searchParams.job_id) ? searchParams.job_id[0] : searchParams.job_id;
+  const jobIdParsed = jobIdRaw ? Number(jobIdRaw) : NaN;
+  const jobId = Number.isFinite(jobIdParsed) ? jobIdParsed : undefined;
 
   const supabase = await createClient();
 
@@ -76,6 +81,8 @@ export default async function NewMaterialHandlingItemPage() {
         uoms={uoms}
         action={createMaterialHandlingItem}
         submitLabel="Create item"
+        defaultJobId={jobId}
+        returnTo={jobId ? `/material-handling-jobs/${jobId}/edit` : undefined}
       />
     </div>
   );

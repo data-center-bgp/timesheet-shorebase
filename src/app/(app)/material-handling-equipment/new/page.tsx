@@ -4,10 +4,17 @@ import { createMaterialHandlingEquipment } from '../actions';
 import { createClient } from '@/lib/supabase/server';
 import { isManagerRole } from '@/lib/auth/require-master';
 
-export default async function NewMaterialHandlingEquipmentPage() {
+export default async function NewMaterialHandlingEquipmentPage(
+  props: PageProps<'/material-handling-equipment/new'>,
+) {
   if (await isManagerRole()) {
     redirect('/material-handling-equipment');
   }
+
+  const searchParams = await props.searchParams;
+  const jobIdRaw = Array.isArray(searchParams.job_id) ? searchParams.job_id[0] : searchParams.job_id;
+  const jobIdParsed = jobIdRaw ? Number(jobIdRaw) : NaN;
+  const jobId = Number.isFinite(jobIdParsed) ? jobIdParsed : undefined;
 
   const supabase = await createClient();
 
@@ -59,6 +66,8 @@ export default async function NewMaterialHandlingEquipmentPage() {
         equipmentOptions={equipmentOptions}
         action={createMaterialHandlingEquipment}
         submitLabel="Create equipment usage"
+        defaultJobId={jobId}
+        returnTo={jobId ? `/material-handling-jobs/${jobId}/edit` : undefined}
       />
     </div>
   );

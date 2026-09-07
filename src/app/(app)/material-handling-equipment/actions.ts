@@ -60,8 +60,10 @@ export async function createMaterialHandlingEquipment(
     return { error: error.message };
   }
 
+  const returnTo = (formData.get('return_to') as string | null)?.trim() || '/material-handling-equipment';
   revalidatePath('/material-handling-equipment');
-  redirect('/material-handling-equipment');
+  revalidatePath(returnTo);
+  redirect(returnTo);
 }
 
 export async function updateMaterialHandlingEquipment(

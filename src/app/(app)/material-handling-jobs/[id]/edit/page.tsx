@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { MaterialHandlingJobForm, type MaterialHandlingJob } from '../../MaterialHandlingJobForm';
 import {
@@ -112,6 +113,53 @@ export default async function EditMaterialHandlingJobPage(props: PageProps<'/mat
     }
   }
 
+  const { data: itemsData, error: itemsError } = await supabase
+    .from('material_handling_item')
+    .select('id, product(name), quantity, uom(name), unit_size, active')
+    .eq('job_id', jobId)
+    .order('id', { ascending: true });
+
+  if (itemsError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load material handling items: {itemsError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const items = (itemsData ?? []) as unknown as {
+    id: number;
+    product: { name: string } | null;
+    quantity: number;
+    uom: { name: string } | null;
+    unit_size: number | null;
+    active: boolean;
+  }[];
+
+  const { data: equipmentData, error: equipmentError } = await supabase
+    .from('material_handling_equipment')
+    .select('id, equipment(code, name), active')
+    .eq('job_id', jobId)
+    .order('id', { ascending: true });
+
+  if (equipmentError) {
+    return (
+      <div className="px-6 py-8">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          Couldn&apos;t load material handling equipment: {equipmentError.message}
+        </p>
+      </div>
+    );
+  }
+
+  const equipmentRecords = (equipmentData ?? []) as unknown as {
+    id: number;
+    equipment: { code: string; name: string } | null;
+    active: boolean;
+  }[];
+
   const { active } = job;
   const updateMaterialHandlingJobWithId = updateMaterialHandlingJob.bind(null, jobId);
   const deactivateMaterialHandlingJobWithId = deactivateMaterialHandlingJob.bind(null, jobId);
@@ -145,6 +193,105 @@ export default async function EditMaterialHandlingJobPage(props: PageProps<'/mat
         submitLabel="Save changes"
         readOnly={isManager}
       />
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-xs font-medium tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
+            ITEMS
+          </p>
+          <Link
+            href={`/material-handling-items/new?job_id=${jobId}`}
+            className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-400"
+          >
+            + Add item
+          </Link>
+        </div>
+        {items.length === 0 ? (
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">No items yet.</p>
+        ) : (
+          <div className="mt-2 space-y-2">
+            {items.map((item) => (
+              <details
+                key={item.id}
+                className="rounded-md border border-zinc-200 px-3 py-2 dark:border-zinc-800"
+              >
+                <summary className="flex cursor-pointer items-center justify-between text-sm">
+                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
+                  </span>
+                  <span
+                    className={
+                      item.active
+                        ? 'rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-950/40 dark:text-teal-300'
+                        : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                    }
+                  >
+                    {item.active ? 'Active' : 'Inactive'}
+                  </span>
+                </summary>
+                <div className="mt-2 flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
+                  <span>Unit size: {item.unit_size ?? '—'}</span>
+                  <Link
+                    href={`/material-handling-items/${item.id}/edit`}
+                    className="font-medium text-teal-700 hover:underline dark:text-teal-400"
+                  >
+                    Edit →
+                  </Link>
+                </div>
+              </details>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-xs font-medium tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
+            EQUIPMENT
+          </p>
+          <Link
+            href={`/material-handling-equipment/new?job_id=${jobId}`}
+            className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-400"
+          >
+            + Add equipment
+          </Link>
+        </div>
+        {equipmentRecords.length === 0 ? (
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">No equipment yet.</p>
+        ) : (
+          <div className="mt-2 space-y-2">
+            {equipmentRecords.map((equipmentRecord) => (
+              <details
+                key={equipmentRecord.id}
+                className="rounded-md border border-zinc-200 px-3 py-2 dark:border-zinc-800"
+              >
+                <summary className="flex cursor-pointer items-center justify-between text-sm">
+                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {equipmentRecord.equipment?.code ?? '—'} — {equipmentRecord.equipment?.name ?? '—'}
+                  </span>
+                  <span
+                    className={
+                      equipmentRecord.active
+                        ? 'rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-950/40 dark:text-teal-300'
+                        : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                    }
+                  >
+                    {equipmentRecord.active ? 'Active' : 'Inactive'}
+                  </span>
+                </summary>
+                <div className="mt-2 flex items-center justify-end text-sm text-zinc-600 dark:text-zinc-400">
+                  <Link
+                    href={`/material-handling-equipment/${equipmentRecord.id}/edit`}
+                    className="font-medium text-teal-700 hover:underline dark:text-teal-400"
+                  >
+                    Edit →
+                  </Link>
+                </div>
+              </details>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

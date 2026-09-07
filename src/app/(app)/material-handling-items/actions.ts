@@ -75,8 +75,10 @@ export async function createMaterialHandlingItem(
     return { error: error.message };
   }
 
+  const returnTo = (formData.get('return_to') as string | null)?.trim() || '/material-handling-items';
   revalidatePath('/material-handling-items');
-  redirect('/material-handling-items');
+  revalidatePath(returnTo);
+  redirect(returnTo);
 }
 
 export async function updateMaterialHandlingItem(
