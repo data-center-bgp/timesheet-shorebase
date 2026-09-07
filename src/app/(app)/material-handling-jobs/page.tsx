@@ -77,8 +77,7 @@ export default async function MaterialHandlingJobsPage() {
                 <th className="px-4 py-2">Contract Service</th>
                 <th className="px-4 py-2">Subcontractor</th>
                 <th className="px-4 py-2">Job date</th>
-                <th className="px-4 py-2">Items</th>
-                <th className="px-4 py-2">Equipment</th>
+                <th className="px-4 py-2">Items &amp; Equipment</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
@@ -102,41 +101,45 @@ export default async function MaterialHandlingJobsPage() {
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{job.job_date}</td>
                     <td className="px-4 py-2 align-top text-zinc-600 dark:text-zinc-400">
-                      {job.material_handling_item.length === 0 ? (
+                      {job.material_handling_item.length === 0 &&
+                      job.material_handling_equipment.length === 0 ? (
                         '—'
                       ) : (
                         <details>
                           <summary className="cursor-pointer font-medium text-teal-700 hover:underline dark:text-teal-400">
                             {job.material_handling_item.length} item
-                            {job.material_handling_item.length === 1 ? '' : 's'}
-                          </summary>
-                          <ul className="mt-1 space-y-0.5 text-xs">
-                            {job.material_handling_item.map((item) => (
-                              <li key={item.id}>
-                                {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
-                                {!item.active && ' (Inactive)'}
-                              </li>
-                            ))}
-                          </ul>
-                        </details>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 align-top text-zinc-600 dark:text-zinc-400">
-                      {job.material_handling_equipment.length === 0 ? (
-                        '—'
-                      ) : (
-                        <details>
-                          <summary className="cursor-pointer font-medium text-teal-700 hover:underline dark:text-teal-400">
+                            {job.material_handling_item.length === 1 ? '' : 's'},{' '}
                             {job.material_handling_equipment.length} equipment
                           </summary>
-                          <ul className="mt-1 space-y-0.5 text-xs">
-                            {job.material_handling_equipment.map((equipmentRecord) => (
-                              <li key={equipmentRecord.id}>
-                                {equipmentRecord.equipment?.code ?? '—'} — {equipmentRecord.equipment?.name ?? '—'}
-                                {!equipmentRecord.active && ' (Inactive)'}
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="mt-1 space-y-2 text-xs">
+                            {job.material_handling_item.length > 0 && (
+                              <div>
+                                <p className="font-medium text-zinc-700 dark:text-zinc-300">Items</p>
+                                <ul className="space-y-0.5">
+                                  {job.material_handling_item.map((item) => (
+                                    <li key={item.id}>
+                                      {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
+                                      {!item.active && ' (Inactive)'}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {job.material_handling_equipment.length > 0 && (
+                              <div>
+                                <p className="font-medium text-zinc-700 dark:text-zinc-300">Equipment</p>
+                                <ul className="space-y-0.5">
+                                  {job.material_handling_equipment.map((equipmentRecord) => (
+                                    <li key={equipmentRecord.id}>
+                                      {equipmentRecord.equipment?.code ?? '—'} —{' '}
+                                      {equipmentRecord.equipment?.name ?? '—'}
+                                      {!equipmentRecord.active && ' (Inactive)'}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </details>
                       )}
                     </td>
