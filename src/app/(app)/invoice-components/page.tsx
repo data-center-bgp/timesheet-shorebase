@@ -6,7 +6,7 @@ type InvoiceComponentRow = {
   id: number;
   agg_amount: number | null;
   invoice: { code: string | null; type_code: string | null } | null;
-  contract_service: { code: string | null } | null;
+  contract_service: { code: string | null; shorebase_service: { name: string | null } | null } | null;
   company: { name: string | null } | null;
   uom: { name: string | null } | null;
 };
@@ -24,7 +24,7 @@ export default async function InvoiceComponentsPage() {
   const { data, error } = await supabase
     .from('invoice_component')
     .select(
-      'id, agg_amount, invoice_id, invoice(code, type_code), contract_service(code), company(name), uom(name)',
+      'id, agg_amount, invoice_id, invoice(code, type_code), contract_service(code, shorebase_service(name)), company(name), uom(name)',
     )
     .order('id', { ascending: true });
 
@@ -84,7 +84,9 @@ export default async function InvoiceComponentsPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                    {component.contract_service?.code ?? '—'}
+                    {component.contract_service
+                      ? `${component.contract_service.code} — ${component.contract_service.shorebase_service?.name ?? '—'}`
+                      : '—'}
                   </td>
                   <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                     {component.company?.name ?? '—'}

@@ -25,6 +25,7 @@ export type InvoiceOption = {
 export type ContractServiceOption = {
   id: number;
   code: string;
+  shorebase_service: { name: string } | null;
 };
 
 export type ShorebaseServiceOption = {
@@ -112,7 +113,7 @@ export function InvoiceComponentForm({
           </option>
           {contractServices.map((contractService) => (
             <option key={contractService.id} value={contractService.id}>
-              {contractService.code}
+              {`${contractService.code} — ${contractService.shorebase_service?.name ?? '—'}`}
             </option>
           ))}
         </select>

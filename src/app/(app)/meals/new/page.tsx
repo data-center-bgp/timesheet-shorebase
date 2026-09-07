@@ -29,7 +29,7 @@ export default async function NewMealPage() {
 
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
-    .select('id, code')
+    .select('id, code, shorebase_service(name)')
     .eq('active', true)
     .order('code', { ascending: true });
 
@@ -59,7 +59,11 @@ export default async function NewMealPage() {
   }
 
   const persons = personsData ?? [];
-  const contractServices = contractServicesData ?? [];
+  const contractServices = (contractServicesData ?? []) as unknown as {
+    id: number;
+    code: string;
+    shorebase_service: { name: string } | null;
+  }[];
   const mealTimes = mealTimesData ?? [];
 
   return (

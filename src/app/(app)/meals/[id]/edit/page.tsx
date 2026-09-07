@@ -62,7 +62,7 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
 
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
-    .select('id, code')
+    .select('id, code, shorebase_service(name)')
     .eq('active', true)
     .order('code', { ascending: true });
 
@@ -76,17 +76,30 @@ export default async function EditMealPage(props: PageProps<'/meals/[id]/edit'>)
     );
   }
 
-  let contractServices = contractServicesData ?? [];
+  let contractServices = (contractServicesData ?? []) as unknown as {
+    id: number;
+    code: string;
+    shorebase_service: { name: string } | null;
+  }[];
   if (
     meal.contract_service_id &&
     !contractServices.some((cs) => cs.id === meal.contract_service_id)
   ) {
     const { data: currentContractService } = await supabase
       .from('contract_service')
-      .select('id, code')
+      .select('id, code, shorebase_service(name)')
       .eq('id', meal.contract_service_id)
       .maybeSingle();
-    if (currentContractService) contractServices = [...contractServices, currentContractService];
+    if (currentContractService) {
+      contractServices = [
+        ...contractServices,
+        currentContractService as unknown as {
+          id: number;
+          code: string;
+          shorebase_service: { name: string } | null;
+        },
+      ];
+    }
   }
 
   const { data: mealTimesData, error: mealTimesError } = await supabase

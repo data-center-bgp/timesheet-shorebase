@@ -9,7 +9,7 @@ type TimesheetRow = {
   total_amount: number;
   active: boolean;
   period: { name: string } | null;
-  contract_service: { code: string } | null;
+  contract_service: { code: string; shorebase_service: { name: string } | null } | null;
 };
 
 export default async function TimesheetsPage() {
@@ -17,7 +17,9 @@ export default async function TimesheetsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('timesheet')
-    .select('id, code, timesheet_date, total_amount, active, period(name), contract_service(code)')
+    .select(
+      'id, code, timesheet_date, total_amount, active, period(name), contract_service(code, shorebase_service(name))',
+    )
     .order('timesheet_date', { ascending: true });
 
   const timesheets = (data ?? []) as unknown as TimesheetRow[];
@@ -82,7 +84,9 @@ export default async function TimesheetsPage() {
                       {timesheet.period?.name ?? '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {timesheet.contract_service?.code ?? '—'}
+                      {timesheet.contract_service
+                        ? `${timesheet.contract_service.code} — ${timesheet.contract_service.shorebase_service?.name ?? '—'}`
+                        : '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{timesheet.timesheet_date}</td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{timesheet.total_amount}</td>

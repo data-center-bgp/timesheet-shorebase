@@ -20,6 +20,7 @@ export type PersonOption = {
 export type ContractServiceOption = {
   id: number;
   code: string;
+  shorebase_service: { name: string } | null;
 };
 
 export type MealTimeOption = {
@@ -90,7 +91,7 @@ export function PersonMealForm({
           </option>
           {contractServices.map((contractService) => (
             <option key={contractService.id} value={contractService.id}>
-              {contractService.code}
+              {`${contractService.code} — ${contractService.shorebase_service?.name ?? '—'}`}
             </option>
           ))}
         </select>

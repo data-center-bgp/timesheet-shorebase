@@ -13,7 +13,7 @@ export default async function NewMaterialHandlingJobPage() {
 
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
-    .select('id, code')
+    .select('id, code, shorebase_service(name)')
     .eq('active', true)
     .order('code', { ascending: true });
 
@@ -43,7 +43,11 @@ export default async function NewMaterialHandlingJobPage() {
     );
   }
 
-  const contractServices = contractServicesData ?? [];
+  const contractServices = (contractServicesData ?? []) as unknown as {
+    id: number;
+    code: string;
+    shorebase_service: { name: string } | null;
+  }[];
   const subcontractors = (subcontractorsData ?? []) as unknown as {
     id: number;
     company: { name: string } | null;

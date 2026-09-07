@@ -7,7 +7,7 @@ type MaterialHandlingJobRow = {
   name: string;
   job_date: string;
   active: boolean;
-  contract_service: { code: string } | null;
+  contract_service: { code: string; shorebase_service: { name: string } | null } | null;
   subcontractors: { company: { name: string } | null } | null;
 };
 
@@ -16,7 +16,7 @@ export default async function MaterialHandlingJobsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_job')
-    .select('id, name, job_date, active, contract_service(code), subcontractors(company(name))')
+    .select('id, name, job_date, active, contract_service(code, shorebase_service(name)), subcontractors(company(name))')
     .order('job_date', { ascending: true });
 
   const jobs = (data ?? []) as unknown as MaterialHandlingJobRow[];
@@ -77,7 +77,9 @@ export default async function MaterialHandlingJobsPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {job.contract_service?.code ?? '—'}
+                      {job.contract_service
+                        ? `${job.contract_service.code} — ${job.contract_service.shorebase_service?.name ?? '—'}`
+                        : '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {job.subcontractors?.company?.name ?? '—'}

@@ -28,7 +28,7 @@ export default async function NewInvoiceComponentPage() {
 
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
-    .select('id, code')
+    .select('id, code, shorebase_service(name)')
     .eq('active', true)
     .order('code', { ascending: true });
 
@@ -93,7 +93,11 @@ export default async function NewInvoiceComponentPage() {
     id: row.id,
     label: `${row.code ?? 'Invoice #' + row.id} (${row.type_code === 'P' ? 'Proforma' : 'Invoice'})`,
   }));
-  const contractServices = contractServicesData ?? [];
+  const contractServices = (contractServicesData ?? []) as unknown as {
+    id: number;
+    code: string;
+    shorebase_service: { name: string } | null;
+  }[];
   const shorebaseServices = shorebaseServicesData ?? [];
   const companies = companiesData ?? [];
   const uoms = uomsData ?? [];

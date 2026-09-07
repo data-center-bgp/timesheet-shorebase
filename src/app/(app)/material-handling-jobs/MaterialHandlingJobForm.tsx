@@ -16,6 +16,7 @@ export type MaterialHandlingJob = {
 export type ContractServiceOption = {
   id: number;
   code: string;
+  shorebase_service: { name: string } | null;
 };
 
 export type SubcontractorOption = {
@@ -76,7 +77,7 @@ export function MaterialHandlingJobForm({
           </option>
           {contractServices.map((contractService) => (
             <option key={contractService.id} value={contractService.id}>
-              {contractService.code}
+              {`${contractService.code} — ${contractService.shorebase_service?.name ?? '—'}`}
             </option>
           ))}
         </select>

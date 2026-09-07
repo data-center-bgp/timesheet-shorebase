@@ -8,7 +8,7 @@ type PersonMealRow = {
   meal_date: string;
   active: boolean;
   person: { name: string } | null;
-  contract_service: { code: string } | null;
+  contract_service: { code: string; shorebase_service: { name: string } | null } | null;
   meal_time: { name: string } | null;
 };
 
@@ -17,7 +17,9 @@ export default async function MealsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_meal')
-    .select('id, count, meal_date, active, person(name), contract_service(code), meal_time(name)')
+    .select(
+      'id, count, meal_date, active, person(name), contract_service(code, shorebase_service(name)), meal_time(name)',
+    )
     .order('meal_date', { ascending: true });
 
   const meals = (data ?? []) as unknown as PersonMealRow[];
@@ -79,7 +81,9 @@ export default async function MealsPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {meal.contract_service?.code ?? '—'}
+                      {meal.contract_service
+                        ? `${meal.contract_service.code} — ${meal.contract_service.shorebase_service?.name ?? '—'}`
+                        : '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {meal.meal_time?.name ?? '—'}

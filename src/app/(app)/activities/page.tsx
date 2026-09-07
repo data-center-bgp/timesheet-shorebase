@@ -8,7 +8,7 @@ type PlanActivityRow = {
   active: boolean;
   plan_amount: number;
   plan_date: string;
-  contract_service: { code: string } | null;
+  contract_service: { code: string; shorebase_service: { name: string } | null } | null;
   timesheet_type: { name: string } | null;
   subcontractors: { company: { name: string } | null } | null;
 };
@@ -19,7 +19,7 @@ export default async function ActivitiesPage() {
   const { data, error } = await supabase
     .from('activity')
     .select(
-      'id, code, active, plan_amount, plan_date, contract_service(code), timesheet_type(name), subcontractors(company(name))',
+      'id, code, active, plan_amount, plan_date, contract_service(code, shorebase_service(name)), timesheet_type(name), subcontractors(company(name))',
     )
     .eq('status_code', 'P')
     .order('plan_date', { ascending: true });
@@ -84,7 +84,9 @@ export default async function ActivitiesPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {activity.contract_service?.code ?? '—'}
+                      {activity.contract_service
+                        ? `${activity.contract_service.code} — ${activity.contract_service.shorebase_service?.name ?? '—'}`
+                        : '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {activity.timesheet_type?.name ?? '—'}

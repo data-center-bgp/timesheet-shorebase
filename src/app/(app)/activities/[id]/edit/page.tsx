@@ -39,7 +39,7 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
 
   const { data: contractServicesData, error: contractServicesError } = await supabase
     .from('contract_service')
-    .select('id, code')
+    .select('id, code, shorebase_service(name)')
     .eq('active', true)
     .order('code', { ascending: true });
 
@@ -53,17 +53,30 @@ export default async function EditActivityPage(props: PageProps<'/activities/[id
     );
   }
 
-  let contractServices = contractServicesData ?? [];
+  let contractServices = (contractServicesData ?? []) as unknown as {
+    id: number;
+    code: string;
+    shorebase_service: { name: string } | null;
+  }[];
   if (
     activity.contract_service_id &&
     !contractServices.some((c) => c.id === activity.contract_service_id)
   ) {
     const { data: currentContractService } = await supabase
       .from('contract_service')
-      .select('id, code')
+      .select('id, code, shorebase_service(name)')
       .eq('id', activity.contract_service_id)
       .maybeSingle();
-    if (currentContractService) contractServices = [...contractServices, currentContractService];
+    if (currentContractService) {
+      contractServices = [
+        ...contractServices,
+        currentContractService as unknown as {
+          id: number;
+          code: string;
+          shorebase_service: { name: string } | null;
+        },
+      ];
+    }
   }
 
   const { data: timesheetTypesData, error: timesheetTypesError } = await supabase

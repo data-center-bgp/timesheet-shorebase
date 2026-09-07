@@ -19,7 +19,11 @@ export type Timesheet = {
 
 export type PeriodOption = { id: number; name: string };
 export type TimesheetTypeOption = { code: string; name: string };
-export type ContractServiceOption = { id: number; code: string };
+export type ContractServiceOption = {
+  id: number;
+  code: string;
+  shorebase_service: { name: string } | null;
+};
 export type SubcontractorOption = { id: number; company: { name: string } | null };
 export type JettyShipOption = { id: number; name: string };
 export type MaterialHandlingJobOption = { id: number; name: string };
@@ -116,7 +120,7 @@ export function TimesheetForm({
           </option>
           {contractServices.map((contractService) => (
             <option key={contractService.id} value={contractService.id}>
-              {contractService.code}
+              {`${contractService.code} — ${contractService.shorebase_service?.name ?? '—'}`}
             </option>
           ))}
         </select>

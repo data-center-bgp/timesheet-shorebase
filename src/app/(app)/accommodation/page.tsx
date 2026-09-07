@@ -9,7 +9,7 @@ type PersonAccomodationRow = {
   end_date: string;
   active: boolean;
   person: { name: string } | null;
-  contract_service: { code: string } | null;
+  contract_service: { code: string; shorebase_service: { name: string } | null } | null;
   room_type: { name: string } | null;
 };
 
@@ -18,7 +18,9 @@ export default async function AccommodationPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('person_accomodation')
-    .select('id, count, start_date, end_date, active, person(name), contract_service(code), room_type(name)')
+    .select(
+      'id, count, start_date, end_date, active, person(name), contract_service(code, shorebase_service(name)), room_type(name)',
+    )
     .order('start_date', { ascending: true });
 
   const accommodations = (data ?? []) as unknown as PersonAccomodationRow[];
@@ -81,7 +83,9 @@ export default async function AccommodationPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {accommodation.contract_service?.code ?? '—'}
+                      {accommodation.contract_service
+                        ? `${accommodation.contract_service.code} — ${accommodation.contract_service.shorebase_service?.name ?? '—'}`
+                        : '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                       {accommodation.room_type?.name ?? '—'}
