@@ -9,6 +9,18 @@ type MaterialHandlingJobRow = {
   active: boolean;
   contract_service: { code: string; shorebase_service: { name: string } | null } | null;
   subcontractors: { company: { name: string } | null } | null;
+  material_handling_item: {
+    id: number;
+    product: { name: string } | null;
+    quantity: number;
+    uom: { name: string } | null;
+    active: boolean;
+  }[];
+  material_handling_equipment: {
+    id: number;
+    equipment: { code: string; name: string } | null;
+    active: boolean;
+  }[];
 };
 
 export default async function MaterialHandlingJobsPage() {
@@ -16,7 +28,9 @@ export default async function MaterialHandlingJobsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('material_handling_job')
-    .select('id, name, job_date, active, contract_service(code, shorebase_service(name)), subcontractors(company(name))')
+    .select(
+      'id, name, job_date, active, contract_service(code, shorebase_service(name)), subcontractors(company(name)), material_handling_item(id, product(name), quantity, uom(name), active), material_handling_equipment(id, equipment(code, name), active)',
+    )
     .order('job_date', { ascending: true });
 
   const jobs = (data ?? []) as unknown as MaterialHandlingJobRow[];
@@ -63,6 +77,8 @@ export default async function MaterialHandlingJobsPage() {
                 <th className="px-4 py-2">Contract Service</th>
                 <th className="px-4 py-2">Subcontractor</th>
                 <th className="px-4 py-2">Job date</th>
+                <th className="px-4 py-2">Items</th>
+                <th className="px-4 py-2">Equipment</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
@@ -85,6 +101,45 @@ export default async function MaterialHandlingJobsPage() {
                       {job.subcontractors?.company?.name ?? '—'}
                     </td>
                     <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{job.job_date}</td>
+                    <td className="px-4 py-2 align-top text-zinc-600 dark:text-zinc-400">
+                      {job.material_handling_item.length === 0 ? (
+                        '—'
+                      ) : (
+                        <details>
+                          <summary className="cursor-pointer font-medium text-teal-700 hover:underline dark:text-teal-400">
+                            {job.material_handling_item.length} item
+                            {job.material_handling_item.length === 1 ? '' : 's'}
+                          </summary>
+                          <ul className="mt-1 space-y-0.5 text-xs">
+                            {job.material_handling_item.map((item) => (
+                              <li key={item.id}>
+                                {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
+                                {!item.active && ' (Inactive)'}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 align-top text-zinc-600 dark:text-zinc-400">
+                      {job.material_handling_equipment.length === 0 ? (
+                        '—'
+                      ) : (
+                        <details>
+                          <summary className="cursor-pointer font-medium text-teal-700 hover:underline dark:text-teal-400">
+                            {job.material_handling_equipment.length} equipment
+                          </summary>
+                          <ul className="mt-1 space-y-0.5 text-xs">
+                            {job.material_handling_equipment.map((equipmentRecord) => (
+                              <li key={equipmentRecord.id}>
+                                {equipmentRecord.equipment?.code ?? '—'} — {equipmentRecord.equipment?.name ?? '—'}
+                                {!equipmentRecord.active && ' (Inactive)'}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
+                    </td>
                     <td className="px-4 py-2">
                       <span
                         className={
