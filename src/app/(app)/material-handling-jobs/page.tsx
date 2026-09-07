@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { isManagerRole } from '@/lib/auth/require-master';
@@ -77,84 +78,90 @@ export default async function MaterialHandlingJobsPage() {
                 <th className="px-4 py-2">Contract Service</th>
                 <th className="px-4 py-2">Subcontractor</th>
                 <th className="px-4 py-2">Job date</th>
-                <th className="px-4 py-2">Items &amp; Equipment</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody>
               {jobs.map((job) => {
                 const { active } = job;
+                const hasChildren =
+                  job.material_handling_item.length > 0 || job.material_handling_equipment.length > 0;
                 return (
-                  <tr key={job.id}>
-                    <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
-                      <Link href={`/material-handling-jobs/${job.id}/edit`} className="hover:underline">
-                        {job.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {job.contract_service
-                        ? `${job.contract_service.code} — ${job.contract_service.shorebase_service?.name ?? '—'}`
-                        : '—'}
-                    </td>
-                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {job.subcontractors?.company?.name ?? '—'}
-                    </td>
-                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{job.job_date}</td>
-                    <td className="px-4 py-2 align-top text-zinc-600 dark:text-zinc-400">
-                      {job.material_handling_item.length === 0 &&
-                      job.material_handling_equipment.length === 0 ? (
-                        '—'
-                      ) : (
-                        <details>
-                          <summary className="cursor-pointer font-medium text-teal-700 hover:underline dark:text-teal-400">
-                            {job.material_handling_item.length} item
-                            {job.material_handling_item.length === 1 ? '' : 's'},{' '}
-                            {job.material_handling_equipment.length} equipment
-                          </summary>
-                          <div className="mt-1 space-y-2 text-xs">
-                            {job.material_handling_item.length > 0 && (
-                              <div>
-                                <p className="font-medium text-zinc-700 dark:text-zinc-300">Items</p>
-                                <ul className="space-y-0.5">
-                                  {job.material_handling_item.map((item) => (
-                                    <li key={item.id}>
-                                      {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
-                                      {!item.active && ' (Inactive)'}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            {job.material_handling_equipment.length > 0 && (
-                              <div>
-                                <p className="font-medium text-zinc-700 dark:text-zinc-300">Equipment</p>
-                                <ul className="space-y-0.5">
-                                  {job.material_handling_equipment.map((equipmentRecord) => (
-                                    <li key={equipmentRecord.id}>
-                                      {equipmentRecord.equipment?.code ?? '—'} —{' '}
-                                      {equipmentRecord.equipment?.name ?? '—'}
-                                      {!equipmentRecord.active && ' (Inactive)'}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </details>
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      <span
-                        className={
-                          active
-                            ? 'rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-950/40 dark:text-teal-300'
-                            : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                        }
-                      >
-                        {active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                  </tr>
+                  <Fragment key={job.id}>
+                    <tr
+                      className={
+                        hasChildren ? undefined : 'border-b border-zinc-200 dark:border-zinc-800'
+                      }
+                    >
+                      <td className="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
+                        <Link href={`/material-handling-jobs/${job.id}/edit`} className="hover:underline">
+                          {job.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                        {job.contract_service
+                          ? `${job.contract_service.code} — ${job.contract_service.shorebase_service?.name ?? '—'}`
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                        {job.subcontractors?.company?.name ?? '—'}
+                      </td>
+                      <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">{job.job_date}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={
+                            active
+                              ? 'rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-950/40 dark:text-teal-300'
+                              : 'rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                          }
+                        >
+                          {active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                    </tr>
+                    {hasChildren && (
+                      <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                        <td colSpan={5} className="bg-zinc-50 px-4 py-2 dark:bg-zinc-900/40">
+                          <details>
+                            <summary className="cursor-pointer text-sm font-medium text-teal-700 hover:underline dark:text-teal-400">
+                              {job.material_handling_item.length} item
+                              {job.material_handling_item.length === 1 ? '' : 's'},{' '}
+                              {job.material_handling_equipment.length} equipment
+                            </summary>
+                            <div className="mt-2 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+                              {job.material_handling_item.length > 0 && (
+                                <div>
+                                  <p className="font-medium text-zinc-700 dark:text-zinc-300">Items</p>
+                                  <ul className="mt-1 space-y-0.5 text-zinc-600 dark:text-zinc-400">
+                                    {job.material_handling_item.map((item) => (
+                                      <li key={item.id}>
+                                        {item.product?.name ?? '—'} — {item.quantity} {item.uom?.name ?? '—'}
+                                        {!item.active && ' (Inactive)'}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {job.material_handling_equipment.length > 0 && (
+                                <div>
+                                  <p className="font-medium text-zinc-700 dark:text-zinc-300">Equipment</p>
+                                  <ul className="mt-1 space-y-0.5 text-zinc-600 dark:text-zinc-400">
+                                    {job.material_handling_equipment.map((equipmentRecord) => (
+                                      <li key={equipmentRecord.id}>
+                                        {equipmentRecord.equipment?.code ?? '—'} —{' '}
+                                        {equipmentRecord.equipment?.name ?? '—'}
+                                        {!equipmentRecord.active && ' (Inactive)'}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </details>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 );
               })}
             </tbody>
